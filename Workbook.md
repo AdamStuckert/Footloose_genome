@@ -1,10 +1,10 @@
 ### Genome assembly
 
-We have gotten PacBio reads from Mt. Sinai. The data are from 3 SMRTcells of the PacBio Sequel II and are placed into a directory called `raw_PacBio_data/`. Data come in a `.bam.` format, and only the `subreads.bam` are good for genome assembly. The first task is to convert these `.bam` files into `.fasta` files for assembly. I have a small script setup to run a conversion from `.bam` to `.fasta.`. This is entitled `pbfasta.job`:
+We have gotten PacBio reads from Mt. Sinai. The data are from 3 SMRTcells of the PacBio Sequel II and are placed into a directory called `raw_PacBio_data/`. Data come in a `.bam.` format, and only the `subreads.bam` are good for genome assembly. The first task is to convert these `.bam` files into `.fasta` files for assembly. I have a small script setup to run a conversion from `.bam` to `.fasta.`. This is entitled `pbsamtools.job`:
 
 ```#!/bin/bash
-#SBATCH --job-name=pacbio
-#SBATCH --output=pacbio.log
+#SBATCH --job-name=pbsamtools
+#SBATCH --output=pbsamtools.log
 #SBATCH --cpus-per-task=24
 #SBATCH --partition=macmanes,shared
 # echo commands to stdout
