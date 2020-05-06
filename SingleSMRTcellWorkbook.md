@@ -133,16 +133,16 @@ cd $HOME/footloose_genome/S_parvus_wtdbg_axolotlparameters_7.5k
 -fo S_parvus_wtdbg_axolotlparameters.ctg.fa
 ```
 
-*This is currently running*
+**This is currently running**
 
 In addition to changing the parameters, I also delved into the raw data to figure out what was going on. I wrote a python script to examine total number of reads and calculate and plot N50. Doing this, I found that the good subreads of our raw data have an N50 of  13,626. 
 
-*insert figure here*
+**insert figure here**
 
 This is quite a bit lower than we expected given library prep aimed for 20-25 kb inserts. However, not horrible. I would expect to get an assembly that is better than roughly double the length of the raw reads!!!
 
 Where to go from here? There are a few things that I need to examine, in no particular order.
 
-1. Sequencing depth (align reads to ref with bwa-mem then use samtools depth *bwa-mem currently running*)
-2. Is it a proliferation of recent repeats???? If this is the case, then it would be hard/impossible to assemble these repeat regions that have not had time to diverge. (Repeat Masker and/or Repeat Modeler)
+1. Sequencing depth (align reads to ref with bwa-mem then use samtools depth **bwa-mem currently running**)
+2. Is it a proliferation of recent repeats???? If this is the case, then it would be hard/impossible to assemble these repeat regions that have not had time to diverge. (Repeat Masker and/or Repeat Modeler **RepeatModeler currently running**)
 3. Contamination? Could bacterial contamination and/or human contamination be driving this? Seems unlikely, but definitely need to do this sanity check.
