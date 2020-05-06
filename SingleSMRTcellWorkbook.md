@@ -133,7 +133,9 @@ cd $HOME/footloose_genome/S_parvus_wtdbg_axolotlparameters_7.5k
 -fo S_parvus_wtdbg_axolotlparameters.ctg.fa
 ```
 
-**This is currently running**
+**This is awful. My assembly is worse**
+
+Next I tried....
 
 In addition to changing the parameters, I also delved into the raw data to figure out what was going on. I wrote a python script to examine total number of reads and calculate and plot N50. Doing this, I found that the good subreads of our raw data have an N50 of  13,626. 
 
