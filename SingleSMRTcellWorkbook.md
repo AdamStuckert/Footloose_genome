@@ -175,6 +175,7 @@ Ran `samtools depth`: `samtools depth SMRTcell_1.sorted.bam > depth.txt` to calu
 
 Get total number of bases (`samtools view -H SMRTcell_1.sorted.bam  | grep -P '^@SQ' | cut -f 3 -d ':' | awk '{sum+=$1} END {print sum}'` should be the same as all other estimates...): 2143282740
 
-Calculate average coverage per base pair (`awk '{sum+=$3} END { print "Average = ",sum/2143282740}' depth.txt`): Average =  NUMBER
+Calculate average coverage per base pair (`awk '{sum+=$3} END { print "Average = ",sum/2143282740}' depth.txt`): 
+`Average =  14.6806X coverage`
 
 Next up: plot the distribution of sequencing depth.
