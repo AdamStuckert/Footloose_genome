@@ -152,14 +152,6 @@ Where to go from here? There are a few things that I need to examine, in no part
 
 ### Sequencing depth, coverage, and mapping rate
 
-Total number of reads in raw data (`grep -c "^>" S_parvus_smrtcell_1.fasta`): 10075593
-Total nuber of single aligned reads (`samtools view -F 0x904 -c SMRTcell_1.sorted.bam`): 3990926
-
-Assuming I did this correctly, this is a 39% mapping rate.
-
-Total nuber of single aligned reads (`samtools view -c -F 260 SMRTcell_1.sorted.bam`): 9856255
-Assuming I did this correctly, this is a 97.8% mapping rate.
-
 Results from `samtools flagstat`:
 
 ```
@@ -179,8 +171,10 @@ Results from `samtools flagstat`:
 ```
 
 
-Running `samtools depth`: `samtools depth SMRTcell_1.sorted.bam > depth.txt`
+Ran `samtools depth`: `samtools depth SMRTcell_1.sorted.bam > depth.txt` to caluclate depth at every base.
+
 Get total number of bases (`samtools view -H SMRTcell_1.sorted.bam  | grep -P '^@SQ' | cut -f 3 -d ':' | awk '{sum+=$1} END {print sum}'` should be the same as all other estimates...): 2143282740
+
 Calculate average coverage per base pair (`awk '{sum+=$3} END { print "Average = ",sum/2143282740}' depth.txt`): Average =  NUMBER
 
 Next up: plot the distribution of sequencing depth.
