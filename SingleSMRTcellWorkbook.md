@@ -148,3 +148,39 @@ Where to go from here? There are a few things that I need to examine, in no part
 1. Sequencing depth (align reads to ref with bwa-mem then use samtools depth **bwa-mem currently running**)
 2. Is it a proliferation of recent repeats???? If this is the case, then it would be hard/impossible to assemble these repeat regions that have not had time to diverge. (Repeat Masker and/or Repeat Modeler **RepeatModeler currently running**)
 3. Contamination? Could bacterial contamination and/or human contamination be driving this? Seems unlikely, but definitely need to do this sanity check.
+
+
+### Sequencing depth, coverage, and mapping rate
+
+Total number of reads in raw data (`grep -c "^>" S_parvus_smrtcell_1.fasta`): 10075593
+Total nuber of single aligned reads (`samtools view -F 0x904 -c SMRTcell_1.sorted.bam`): 3990926
+
+Assuming I did this correctly, this is a 39% mapping rate.
+
+Total nuber of single aligned reads (`samtools view -c -F 260 SMRTcell_1.sorted.bam`): 9856255
+Assuming I did this correctly, this is a 97.8% mapping rate.
+
+Results from `samtools flagstat`:
+
+```
+10323702 + 0 in total (QC-passed reads + QC-failed reads)
+0 + 0 secondary
+5865329 + 0 supplementary
+0 + 0 duplicates
+9856255 + 0 mapped (95.47% : N/A)
+0 + 0 paired in sequencing
+0 + 0 read1
+0 + 0 read2
+0 + 0 properly paired (N/A : N/A)
+0 + 0 with itself and mate mapped
+0 + 0 singletons (N/A : N/A)
+0 + 0 with mate mapped to a different chr
+0 + 0 with mate mapped to a different chr (mapQ>=5)
+```
+
+
+Running `samtools depth`: `samtools depth SMRTcell_1.sorted.bam > depth.txt`
+Get total number of bases (`samtools view -H SMRTcell_1.sorted.bam  | grep -P '^@SQ' | cut -f 3 -d ':' | awk '{sum+=$1} END {print sum}'` should be the same as all other estimates...): 2143282740
+Calculate average coverage per base pair (`awk '{sum+=$3} END { print "Average = ",sum/2143282740}' depth.txt`): Average =  NUMBER
+
+Next up: plot the distribution of sequencing depth.
