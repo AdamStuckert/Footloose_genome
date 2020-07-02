@@ -26,3 +26,12 @@ SMRTcell | Reads | Bases | Average read length | Read N50
 2 | 6,467,364 | 61,060,153,324 | 9,441.3 | 17,321
 3 | 6,595,111 | 62,098,555,689 | 9,415.8 | 17,826
 Total | 23,138,068‬ | 227,479,082,143 | |
+
+Ran an assembly using wtdbg2 on the combined datasets. Comparisons of first to second iteration:
+
+Assembly | Genome Size (GB) | Contig N50 | Number of Contigs | %Ns | BUSCO 
+--- | --- | --- | --- | --- | --
+S_parvus.1.0 | 2,143,282,740 | 28,208 | 105174 | 0.00 | C:0.6%[S:0.6%,D:0.0%],F:1.0%,M:98.4%,n:3950
+S_parvus.2.0 | 3,782,941,384 | 156,120 | 49172 | 0.00 | C:28.7%[S:28.6%,D:0.1%],F:14.2%,M:57.1%,n:3950
+
+Next up, calculate depth, etc.
