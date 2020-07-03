@@ -34,4 +34,10 @@ Assembly | Genome Size (GB) | Contig N50 | Number of Contigs | %Ns | BUSCO
 S_parvus.1.0 | 2,143,282,740 | 28,208 | 105174 | 0.00 | C:0.6%[S:0.6%,D:0.0%],F:1.0%,M:98.4%,n:3950
 S_parvus.2.0 | 3,782,941,384 | 156,120 | 49172 | 0.00 | C:28.7%[S:28.6%,D:0.1%],F:14.2%,M:57.1%,n:3950
 
-Next up, calculate depth, etc.
+Calculated depth:
+
+Total number of bases from all 3 SMRT cells: 117,978,338,550
+Average coverage of assembled genome: 31.18
+
+Overall this is much better! I am a bit concerned that 50% of our data (in number of bases) is not represented in the depth files. This is indicative of missing a fairly substantial portion of the genome I think.
+
