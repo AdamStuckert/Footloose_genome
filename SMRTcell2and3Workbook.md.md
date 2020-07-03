@@ -18,7 +18,7 @@ readlengths.py S_parvus_smrtcell_2.fasta S_parvus_smrtcell_2.fasta.txt
 readlengths.py S_parvus_smrtcell_3.fasta S_parvus_smrtcell_3.fasta.txt
 ```
 
-Data. 
+### Overview of data 
 
 SMRTcell | Reads | Bases | Average read length | Read N50
 -- | -- | -- | -- | --
@@ -27,7 +27,10 @@ SMRTcell | Reads | Bases | Average read length | Read N50
 3 | 6,595,111 | 62,098,555,689 | 9,415.8 | 17,826
 Total | 23,138,068‬ | 227,479,082,143 | |
 
-Ran an assembly using wtdbg2 on the combined datasets. Comparisons of first to second iteration:
+Ran an assembly using wtdbg2 on the combined datasets. 
+
+
+### Comparisons of first iteration of the genome to the second iteration:
 
 Assembly | Genome Size (GB) | Contig N50 | Number of Contigs | %Ns | BUSCO 
 --- | --- | --- | --- | --- | --
