@@ -43,5 +43,7 @@ Total number of bases from all 3 SMRT cells: 117,978,338,550
 
 Average coverage of assembled genome: 31.18
 
+## Concluding thoughts:
+
 Overall this is much better! I am a bit concerned that 50% of our data (in number of bases) is not represented in the depth files. This is indicative of missing a fairly substantial portion of the genome I think.
 
