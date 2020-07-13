@@ -47,3 +47,27 @@ Average coverage of assembled genome: 31.18
 
 Overall this is much better! I am a bit concerned that 50% of our data (in number of bases) is not represented in the depth files. This is indicative of missing a fairly substantial portion of the genome I think.
 
+## Calculating genome size
+
+Apparently those weren't my concluding thoughts. I'm trying to get a handle on the actual genome size so we can do the next steps. But traditional metrics of computationally doing this are impossible with noisy long reads. So I'm going to correct them with the canu assembler and reasses.
+
+```bash
+canu \
+-p parvus -d canu \
+genomeSize=6g \
+correctedErrorRate=0.055 \
+gnuplot=undef \
+purgeOverlaps=aggressive \
+corMaxEvidenceErate=0.15 \
+corMhapFilterThreshold=0.0000000002 \
+corMhapOptions="--threshold 0.80 --num-hashes 512 --num-min-matches 3 --ordered-sketch-size 1000 --ordered-kmer-size 14 --min-olap-length 2000 --repeat-idf-scale 50" \
+mhapMemory=60g \
+mhapBlockSize=500 \
+ovlMerDistinct=0.975 \
+gridEngineArrayOption="-a ARRAY_JOBS%30" \
+-pacbio raw_data/S_parvus_smrtcell_1.fasta \
+-pacbio raw_data/S_parvus_smrtcell_2.fasta \
+-pacbio raw_data/S_parvus_smrtcell_3.fasta
+```
+
+Most of the parameters are from the FAQ in order to decrease overall use of the hard drive, because my lab group is already annoyed that I have blown up our disk space quota a few times...
