@@ -71,3 +71,31 @@ gridEngineArrayOption="-a ARRAY_JOBS%30" \
 ```
 
 Most of the parameters are from the FAQ in order to decrease overall use of the hard drive, because my lab group is already annoyed that I have blown up our disk space quota a few times...
+
+Still no dice, blew up disk usage. On to using the PacBio `ccs` program to calculate corrected reads.
+
+```bash
+#!/bin/bash
+#SBATCH --partition=macmanes,shared
+#SBATCH -J ccs
+#SBATCH --output ccs.%A_%a.log
+#SBATCH --array=1-21%7   
+
+
+echo "SLURM_JOBID: " $SLURM_JOBID
+echo "SLURM_ARRAY_TASK_ID: " $SLURM_ARRAY_TASK_ID
+echo "SLURM_ARRAY_JOB_ID: " $SLURM_ARRAY_JOB_ID
+
+# environments
+module purge
+source activate ccs
+
+movie="m54312U_200614_135548"
+
+# run ccs in iterative chunks
+ccs ${movie}.subreads.bam ${movie}.ccs.${SLURM_ARRAY_TASK_ID}.bam --chunk ${SLURM_ARRAY_TASK_ID}/21 -j 10
+
+# merge files
+pbmerge -o ${movie}.ccs.bam ${movie}.ccs.*.bam
+pbindex ${movie}.ccs.bam
+```
