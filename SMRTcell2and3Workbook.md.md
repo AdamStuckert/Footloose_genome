@@ -79,7 +79,8 @@ Still no dice, blew up disk usage. On to using the PacBio `ccs` program to calcu
 #SBATCH --partition=macmanes,shared
 #SBATCH -J ccs
 #SBATCH --output ccs.%A_%a.log
-#SBATCH --array=1-21%7   
+#SBATCH --array=1-21%7 
+#SBATCH --cpus-per-task=10
 
 
 echo "SLURM_JOBID: " $SLURM_JOBID
