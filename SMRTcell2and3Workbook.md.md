@@ -100,3 +100,13 @@ ccs ${movie}.subreads.bam ${movie}.ccs.${SLURM_ARRAY_TASK_ID}.bam --chunk ${SLUR
 pbmerge -o ${movie}.ccs.bam ${movie}.ccs.*.bam
 pbindex ${movie}.ccs.bam
 ```
+
+This did not provide a reasonable estimate of genome size.
+
+I concurrently was working on assembling the genome again with low-coverage parameters using wtdbg2. Results:
+
+Assembly | Genome Size (GB) | Contig N50 | Number of Contigs | %Ns | BUSCO 
+--- | --- | --- | --- | --- | --
+S_parvus.1.0 | 2,143,282,740 | 28,208 | 105174 | 0.00 | C:0.6%[S:0.6%,D:0.0%],F:1.0%,M:98.4%,n:3950
+S_parvus.2.0 | 3,782,941,384 | 156,120 | 49172 | 0.00 | C:28.7%[S:28.6%,D:0.1%],F:14.2%,M:57.1%,n:3950
+S_parvus.2.0_lowcoverage  | 3,756,961,657 | 197,812 | 42,434 | 0.00 |   
