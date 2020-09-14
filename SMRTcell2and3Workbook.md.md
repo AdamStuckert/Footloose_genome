@@ -112,3 +112,4 @@ S_parvus.2.0 | 3,782,941,384 | 156,120 | 49,172 | 0.00 | C:28.7%[S:28.6%,D:0.1%]
 S_parvus.2.0_lowcoverage  | 3,756,961,657 | 197,812 | 42,434 | 0.00 | C:39.8%[S:39.3%,D:0.5%],F:15.2%,M:45.0%,n:3950
 
 
+__I mapped reads to the "low coverage" genome assembly and we have 30.9X coverage of assembled regions.__
