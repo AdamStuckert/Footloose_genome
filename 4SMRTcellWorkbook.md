@@ -17,7 +17,7 @@ SMRTcell | Reads | Bases | Average read length | Read N50
 2 | 6,467,364 | 61,060,153,324 | 9,441.3 | 17,321
 3 | 6,595,111 | 62,098,555,689 | 9,415.8 | 17,826
 4 | 8,972,917 | 84,993,649,263 | 9,472.2 |  14,344
-Total | ‬ |  |  | 
+Total | ‬32,110,985 | 312,472,731,406 | 9,731.0 | 15,262
 
 Ran an assembly using wtdbg2 on the combined datasets. 
 
