@@ -86,7 +86,7 @@ The genic content of the assembly is not particularly good. I think this might b
 #SBATCH --partition=macmanes,shared
 #SBATCH -J racon
 #SBATCH --output racon.log
-#SBATCH --cpus-per-task=24
+#SBATCH --cpus-per-task=40
 #SBATCH --exclude=node117,node118
 #SBATCH --mem=700000
 set -x
@@ -113,7 +113,7 @@ cd racon
 
 ### Run racon
 echo Polishing with racon
-racon -t 24 $READS Footlose.PB.paf.gz $genome > S_parvus_wtdbg.ctg.polished1.fa
+racon -t 240 $READS Footlose.PB.paf.gz $genome > S_parvus_wtdbg.ctg.polished1.fa
 ```
 
 ### Calculated depth:
