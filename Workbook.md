@@ -77,6 +77,45 @@ S_parvus.2.0_lowcoverage  | 3,756,961,657 | 197,812 | 42,434 | 0.00 | C:39.8%[S:
 S_parvus.3.0 | 3,947,455,185 | 401,758 | 27,869 | 0.0 | C:56.5%[S:55.7%,D:0.8%],F:14.6%,M:28.9%,n:3950
 S_parvus.4.0 | 3,985,797,087 | 608,715 | 23,418 | 0.0 | C:68.3%[S:67.2%,D:1.1%],F:12.6%,M:19.1%,n:3950
 
+### Polishing the assembly with Racon 
+
+The genic content of the assembly is not particularly good. I think this might be due to poor consensus calling. I am going to polish the assembly with the readsets that we have in order to see if this helps recover genic content that we are not seeing. It should.
+
+```bash
+#!/bin/bash
+#SBATCH --partition=macmanes,shared
+#SBATCH -J racon
+#SBATCH --output racon.log
+#SBATCH --cpus-per-task=24
+#SBATCH --exclude=node117,node118
+#SBATCH --mem=700000
+set -x
+
+DIR=$(pwd)
+ASSEMBLY="$HOME/footloose_genome/S_parvus_wtdbg_axolotlparameters/S_parvus_wtdbg.ctg.fa"
+genome=$(basename $ASSEMBLY)
+READS=$"$HOME/footloose_genome/raw_data/S_parvus_all_smrtcells.fasta"
+
+# racon requires a single readfile, concatenate reads:
+cat raw_data/S_parvus_smrtcell_*.fasta > raw_data/S_parvus_all_smrtcells.fasta
+
+module load linuxbrew/colsa
+
+# preparation
+mkdir racon
+cd racon
+
+#cp $ASSEMBLY .
+
+### First align reads with minimap2
+#echo aligning with minimap2
+#minimap2 -I10G -t 40 -xmap-pb $genome $READS | gzip -c - > Footlose.PB.paf.gz
+
+### Run racon
+echo Polishing with racon
+racon -t 24 $READS Footlose.PB.paf.gz $genome > S_parvus_wtdbg.ctg.polished1.fa
+```
+
 ### Calculated depth:
 
 Total number of bases from all 5 SMRT cells: ????
