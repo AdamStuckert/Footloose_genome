@@ -116,6 +116,18 @@ echo Polishing with racon
 racon -t 240 $READS Footlose.PB.paf.gz $genome > S_parvus_wtdbg.ctg.polished1.fa
 ```
 
+### Genome assembly comparisons
+
+Assembly | Genome Size (GB) | Contig N50 | Number of Contigs | %Ns | BUSCO 
+--- | --- | --- | --- | --- | --
+S_parvus.1.0 | 2,143,282,740 | 28,208 | 10,174 | 0.00 | C:0.6%[S:0.6%,D:0.0%],F:1.0%,M:98.4%,n:3950
+S_parvus.2.0 | 3,782,941,384 | 156,120 | 49,172 | 0.00 | C:28.7%[S:28.6%,D:0.1%],F:14.2%,M:57.1%,n:3950
+S_parvus.2.0_lowcoverage  | 3,756,961,657 | 197,812 | 42,434 | 0.00 | C:39.8%[S:39.3%,D:0.5%],F:15.2%,M:45.0%,n:3950
+S_parvus.3.0 | 3,947,455,185 | 401,758 | 27,869 | 0.0 | C:56.5%[S:55.7%,D:0.8%],F:14.6%,M:28.9%,n:3950
+S_parvus.4.0 | 3,985,797,087 | 608,715 | 23,418 | 0.0 | C:68.3%[S:67.2%,D:1.1%],F:12.6%,M:19.1%,n:3950
+S_parvus.4.0.polished1 | 3,982,189,551 | 611,229 | 22,402 | 0.0 | Pending
+
+
 ### Calculated depth:
 
 Total number of bases from all 5 SMRT cells: ????
