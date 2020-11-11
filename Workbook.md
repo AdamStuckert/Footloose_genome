@@ -116,6 +116,49 @@ echo Polishing with racon
 racon -t 240 $READS Footlose.PB.paf.gz $genome > S_parvus_wtdbg.ctg.polished1.fa
 ```
 
+I then reran this racon pipeline with the polished genome to produce a genome that had been polished 2x. This made the genome negligibly worse. 
+
+We have gotten preads from PacBio. These are error corrected consensus reads that are produced by the FALCON assembler. PacBio ran FALCON for us using the data from our first 4 SMRTcells. This produced 75 TB of intermediate files, which...fuck that is so much. Anyway, I am going to use these error corrected reads to polish again see if I can't improve genic content a bit more.
+
+```bash
+#!/bin/bash
+#SBATCH --partition=macmanes,shared
+#SBATCH -J racon
+#SBATCH --output racon2.log
+#SBATCH --cpus-per-task=24
+#SBATCH --exclude=node117,node118
+#SBATCH --mem=300000
+set -x
+
+DIR=$(pwd)
+ASSEMBLY="$HOME/footloose_genome/racon/S_parvus_wtdbg.ctg.polished1.fa"
+genome=$(basename $ASSEMBLY)
+READS=$"$HOME/footloose_genome/raw_data/FromPacBioNov2020/falcon_assembly_results/preads4falcon.unwrapped.fasta"
+
+
+module load linuxbrew/colsa
+
+# preparation
+mkdir racon_preads
+cd racon_preads
+
+#cp $ASSEMBLY .
+
+awk '{print $1}' $genome > new.fasta
+mv new.fasta $genome
+
+### First align reads with minimap2
+echo aligning with minimap2
+minimap2 -I10G -t 40 -x asm20 $genome $READS | gzip -c - > Footlose.PB.paf.gz
+
+### Run racon
+echo Polishing with racon
+racon -t 40 $READS Footlose.PB.paf.gz $genome > S_parvus_wtdbg.ctg.polished2.fa
+
+```
+
+
+
 ### Genome assembly comparisons
 
 Assembly | Genome Size (GB) | Contig N50 | Number of Contigs | %Ns | BUSCO 
@@ -126,7 +169,7 @@ S_parvus.2.0_lowcoverage  | 3,756,961,657 | 197,812 | 42,434 | 0.00 | C:39.8%[S:
 S_parvus.3.0 | 3,947,455,185 | 401,758 | 27,869 | 0.0 | C:56.5%[S:55.7%,D:0.8%],F:14.6%,M:28.9%,n:3950
 S_parvus.4.0 | 3,985,797,087 | 608,715 | 23,418 | 0.0 | C:68.3%[S:67.2%,D:1.1%],F:12.6%,M:19.1%,n:3950
 S_parvus.4.0.polished1 | 3,982,189,551 | 611,229 | 22,402 | 0.0 | C:74.4%[S:73.2%,D:1.2%],F:11.3%,M:14.3%,n:3950
-S_parvus.4.0.polished2 | 3974878570 | 612790 | 22037 | 0.0 | C:73.7%[S:72.6%,D:1.1%],F:11.4%,M:14.9%,n:3950
+S_parvus.4.0.polished2 | 3,918,212,060 | 609,425 | 20,281 | 0.0 | pending
 
 It seems like the second round of polishing did not help. We have been in contact with PacBio about all of this, and they have graciously provided some corrected reads (preads) for us. I will use those to polish again.
 
