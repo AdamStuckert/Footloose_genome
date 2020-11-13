@@ -177,4 +177,15 @@ It seems like the second round of polishing did not help. We have been in contac
 *but how?*
 
 
-## Concluding thoughts:
+### Annotation
+
+First up, downloading RNA seq reads to use for annotation. We don't have any ourselves, so we will use RNA seq reads from the American bullfrog.
+
+Tissue | Treatment | Link
+--- | --- | ---
+Whole tadpole | NA | https://trace.ncbi.nlm.nih.gov/Traces/sra/?run=DRR040619
+Olfactory bulb | NA | https://trace.ncbi.nlm.nih.gov/Traces/sra/?run=SRR4048907
+Back skin | NA | https://trace.ncbi.nlm.nih.gov/Traces/sra/?run=SRR4045340
+Lung sample | NA | https://trace.ncbi.nlm.nih.gov/Traces/sra/?run=SRR4045335
+Tail fin | NA | https://trace.ncbi.nlm.nih.gov/Traces/sra/?run=SRR4045338
+Brain | NA | https://trace.ncbi.nlm.nih.gov/Traces/sra/?run=SRR4044081
