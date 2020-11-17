@@ -270,6 +270,13 @@ READ2=$HOME/footloose_genome/raw_data/RNAseqData/combined.R2.fq \
 RUNOUT=Bullfrog_multitissues_ORP
 ```
 
+At this point I then removed any sequences smaller than **500 BP.** Note: this is a placeholder. I will examine these files then make an informed decision. But basically what I want to do is remove errant/duplicated annotations from really small transcripts in the assembly. 
+
+```bash
+## code to do this here.
+```
+
+
 I then analyzed these with TransRate and BUSCO using the tetrapoda database.
 
 ## Transcriptome results:
