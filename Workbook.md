@@ -335,3 +335,33 @@ I then analyzed these with TransRate and BUSCO using the tetrapoda database.
 Finally, I used these to annotate our assembly.
 
 ### Annotation
+
+First, a rousing round of repeat modeler:
+
+```
+#!/bin/bash
+#SBATCH --job-name=repeatmod
+#SBATCH --output=repeatmodeler.log
+#SBATCH --partition=macmanes
+#SBATCH --cpus-per-task=40
+#SBATCH --open-mode=append
+#SBATCH --exclude=node117,node118
+
+ASSEMBLY=""
+genome=$(basename $ASSEMBLY)
+
+# env
+module load linuxbrew/colsa
+
+mkdir repeat_modeler
+cd repeat_modeler
+
+ln -s $ASSEMBLY
+
+BuildDatabase -name $genome.repeatmodeler_db -engine ncbi $genome
+
+RepeatModeler -database $genome.repeatmodeler_db -pa 40
+```
+
+Next, a grueling round of Maker. For Maker contig files please see **add link to those documents in the GitHub repo once I've run Maker and added them here**.
+
