@@ -381,8 +381,45 @@ RepeatModeler -database $genome.repeatmodeler_db -pa 40
 
 After this, I ran RepeatMasker.
 
-```bash
-repeat masker code...
+```
+#!/bin/bash
+#SBATCH --partition=macmanes,shared
+#SBATCH -J repeatmask
+#SBATCH --output repeatmasker.log
+#SBATCH --cpus-per-task=40
+#SBATCH --exclude=node117,node118
+
+module load linuxbrew/colsa
+
+DIR=$(pwd)
+ASSEMBLY="$HOME/footloose_genome/genome_versions/S_parvus_wtdbg.ctg.polished1.purged.fa"
+genome=$(basename $ASSEMBLY)
+PATH=/mnt/lustre/macmaneslab/macmanes/ncbi-blast-2.7.1+/bin:$PATH
+export AUGUSTUS_CONFIG_PATH=/mnt/lustre/macmaneslab/shared/augustus_config/config
+
+
+### input requires two fasta files. 1) the masked fasta file from RepeatMasker; 2) the genome assembly
+
+# get most masked fasta file from RepeatModeler. This assumes that the most recent run is the correct one!
+masked=$(ls -ltr repeat_modeler/RM_*/consensi.fa.classified | tail -n1 | awk '{print $NF}')
+maskedfile=$(basename $masked)
+
+echo This is the masked fasta file from RepeatModeler $masked
+
+## prep directory
+mkdir repeatmasker
+cd repeatmasker
+
+# symlink everything here
+ln -s ${DIR}/$masked
+ln -s $ASSEMBLY
+
+# sanity check
+which perl
+
+# run repeatmasker
+$HOME/software/RepeatMasker/RepeatMasker -pa 40 -gff -lib $maskedfile  -q $genome
+
 
 ```
 
