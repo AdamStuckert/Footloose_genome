@@ -379,5 +379,76 @@ BuildDatabase -name $genome.repeatmodeler_db -engine ncbi $genome
 RepeatModeler -database $genome.repeatmodeler_db -pa 40
 ```
 
+After this, I ran RepeatMasker.
+
+```bash
+repeat masker code...
+
+```
+
+
+Repeat Masker results:
+
+file name: S_parvus_wtdbg.ctg.polished1.purged.fa
+sequences:         18095
+total length: 3931525283 bp  (3931525237 bp excl N/X-runs)
+GC level:         42.49 %
+bases masked: 2430076406 bp ( 61.81 %)
+==================================================
+               number of      length   percentage
+               elements*    occupied  of sequence
+--------------------------------------------------
+Retroelements       857352    442929408 bp   11.27 %
+   SINEs:                0            0 bp    0.00 %
+   Penelope         132303     48927208 bp    1.24 %
+   LINEs:           744936    349034810 bp    8.88 %
+    CRE/SLACS            0            0 bp    0.00 %
+     L2/CR1/Rex     380312    164515603 bp    4.18 %
+     R1/LOA/Jockey       0            0 bp    0.00 %
+     R2/R4/NeSL          0            0 bp    0.00 %
+     RTE/Bov-B        1290       458127 bp    0.01 %
+     L1/CIN4        218200    125501718 bp    3.19 %
+   LTR elements:    112416     93894598 bp    2.39 %
+     BEL/Pao          6278      6722189 bp    0.17 %
+     Ty1/Copia        3510      2316667 bp    0.06 %
+     Gypsy/DIRS1     92726     73059855 bp    1.86 %
+       Retroviral     6993      8490370 bp    0.22 %
+
+DNA transposons     865064    493406526 bp   12.55 %
+   hobo-Activator    61742     50885299 bp    1.29 %
+   Tc1-IS630-Pogo   703957    389733641 bp    9.91 %
+   En-Spm                0            0 bp    0.00 %
+   MuDR-IS905            0            0 bp    0.00 %
+   PiggyBac          93686     47833838 bp    1.22 %
+   Tourist/Harbinger     0            0 bp    0.00 %
+   Other (Mirage,        0            0 bp    0.00 %
+    P-element, Transib)
+
+Rolling-circles          0            0 bp    0.00 %
+
+Unclassified:       5255637   1401539996 bp   35.65 %
+
+Total interspersed repeats:  2337875930 bp   59.46 %
+
+
+Small RNA:               0            0 bp    0.00 %
+
+Satellites:              0            0 bp    0.00 %
+Simple repeats:     818707     77722625 bp    1.98 %
+Low complexity:      97081     14477851 bp    0.37 %
+==================================================
+
+* most repeats fragmented by insertions or deletions
+  have been counted as one element
+
+
+RepeatMasker Combined Database: Dfam_3.1
+
+run with rmblastn version 2.2.27+
+The query was compared to classified sequences in "consensi.fa.classified"
+
+
+
+
 Next, a grueling round of Maker. For Maker contig files please see **add link to those documents in the GitHub repo once I've run Maker and added them here**.
 
