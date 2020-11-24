@@ -423,7 +423,7 @@ $HOME/software/RepeatMasker/RepeatMasker -pa 40 -gff -lib $maskedfile  -q $genom
 
 ```
 
-
+```
 Repeat Masker results:
 
 file name: S_parvus_wtdbg.ctg.polished1.purged.fa
@@ -483,7 +483,7 @@ RepeatMasker Combined Database: Dfam_3.1
 
 run with rmblastn version 2.2.27+
 The query was compared to classified sequences in "consensi.fa.classified"
-
+```
 
 
 
