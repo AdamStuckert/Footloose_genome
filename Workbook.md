@@ -487,5 +487,69 @@ The query was compared to classified sequences in "consensi.fa.classified"
 
 
 
-Next, a grueling round of Maker. For Maker contig files please see **add link to those documents in the GitHub repo once I've run Maker and added them here**.
+Next, a grueling round of Maker. For Maker config files please see the (maker_data/)[https://github.com/AdamStuckert/Footloose_genome/tree/master/maker_data] directory. I ran a single round of Maker, without running RepeatMasker within Maker (as I had already run both RepeatModeler and RepeatMasker). I used transcript evidence from the American bullfrog (Ranidae, *Lithobates catesbeianus*) to annotate this genome. These transcripts were produced via the Oyster River Protocol (code above) from publically available reads. 
+
+Maker script:
+
+```
+#!/bin/bash
+#SBATCH --partition=macmanes,shared
+#SBATCH -J maker
+#SBATCH --ntasks=160
+#SBATCH --mem 110Gb
+#SBATCH --output maker.masked.log
+#SBATCH --open-mode=append
+
+set -x
+
+module purge
+module load anaconda/colsa
+source activate maker-3.01.02
+module purge
+module load linuxbrew/colsa
+
+
+species="Staurois_parvus"
+genome="$HOME/footloose_genome/repeatmasker/S_parvus_wtdbg.ctg.polished1.purged.fa.masked"
+gbase=$(basename $genome | sed "s/.fasta//g" | sed "s/.fa.masked//g")
+PREFIX="S_parv"
+OUTPUT="maker"
+MAKER="/mnt/lustre/macmaneslab/macmanes/test/maker/bin/"
+
+mkdir -p $HOME/footloose_genome/${OUTPUT}
+cd $HOME/footloose_genome/${OUTPUT}
+
+echo Running maker on $genome
+echo Maker output going to $OUTPUT
+
+echo Using control files:
+echo "$HOME/footloose_genome/maker_data/maker_opts_uniprot_NoRepeatMaskerWithinMaker.ctl"
+echo "$HOME/footloose_genome/maker_data/maker_bopts.ctl"
+echo "$HOME/footloose_genome/maker_data/maker_exe.ctl"
+
+mpiexec -n 160 /mnt/lustre/macmaneslab/macmanes/test/maker/bin/maker \
+-fix_nucleotides -base "$species" -quiet \
+-genome "$genome" \
+$HOME/footloose_genome/maker_data/maker_opts_uniprot_NoRepeatMaskerWithinMaker.ctl \
+$HOME/footloose_genome/maker_data/maker_bopts.ctl \
+$HOME/footloose_genome/maker_data/maker_exe.ctl
+
+$MAKER/fasta_merge -d "$species".maker.output/"$species"_master_datastore_index.log -o "$species"."$gbase"
+$MAKER/gff3_merge -d "$species".maker.output/"$species"_master_datastore_index.log -o "$species"."$gbase".gff3 -n
+lastal -P22 /mnt/lustre/macmaneslab/macmanes/transporters/swissprot "$species"."$gbase".all.maker.proteins.fasta -f BlastTab > blast.out
+$MAKER/maker_functional_fasta /mnt/lustre/macmaneslab/macmanes/transporters/uniprot_sprot.fasta blast.out "$species"."$gbase".all.maker.proteins.fasta > "$species"."$gbase".functional.proteins.fasta
+$MAKER/maker_functional_fasta /mnt/lustre/macmaneslab/macmanes/transporters/uniprot_sprot.fasta blast.out "$species"."$gbase".all.maker.transcripts.fasta > "$species"."$gbase".functional.transcripts.fasta
+MAKER/maker_functional_gff /mnt/lustre/macmaneslab/macmanes/transporters/uniprot_sprot.fasta blast.out "$species"."$gbase".gff3 > "$species"."$gbase".functional.gff3
+MAKER/maker_map_ids --prefix "$PREFIX"_ --justify 6 "$species"."$gbase".functional.gff3 > "$species"."$gbase".genome.all.id.map
+MAKER/map_fasta_ids "$species"."$gbase".genome.all.id.map  "$species"."$gbase".functional.proteins.fasta
+MAKER/map_gff_ids "$species"."$gbase".genome.all.id.map  "$species"."$gbase".functional.gff3
+$MAKER/map_fasta_ids "$species"."$gbase".genome.all.id.map  "$species"."$gbase".functional.transcripts.fasta
+
+# get annotation information for RNAseq analyses
+grep "^>" "$species"."$gbase".functional.transcripts.fasta | tr -d ">" > headers.txt
+awk '{print $1}' headers.txt  > transcripts.txt
+cut -f 2 -d '"' headers.txt  | sed "s/Similar to //g" > annotations.txt
+paste transcripts.txt annotations.txt > "$species"."$gbase".annotations.tsv
+
+```
 
