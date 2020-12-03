@@ -553,3 +553,4 @@ paste transcripts.txt annotations.txt > "$species"."$gbase".annotations.tsv
 
 ```
 
+Note: for now I'm actually annotating without repeatmodeler/repeatmasker (using maker_opts_uniprot.ctl) until I convert repeat annotations from gff2 to gff3. Conda install of the software I want has been slow.
