@@ -487,7 +487,7 @@ The query was compared to classified sequences in "consensi.fa.classified"
 
 
 
-Next, a grueling round of Maker. For Maker config files please see the (maker_data/)[https://github.com/AdamStuckert/Footloose_genome/tree/master/maker_data] directory. I ran a single round of Maker, without running RepeatMasker within Maker (as I had already run both RepeatModeler and RepeatMasker). I used transcript evidence from the American bullfrog (Ranidae, *Lithobates catesbeianus*) to annotate this genome. These transcripts were produced via the Oyster River Protocol (code above) from publically available reads. 
+Next, a grueling round of Maker. For Maker config files please see the [maker_data/](https://github.com/AdamStuckert/Footloose_genome/tree/master/maker_data) directory. I ran a single round of Maker, without running RepeatMasker within Maker (as I had already run both RepeatModeler and RepeatMasker). I used transcript evidence from the American bullfrog (Ranidae, *Lithobates catesbeianus*) to annotate this genome. These transcripts were produced via the Oyster River Protocol (code above) from publically available reads. 
 
 Maker script:
 
