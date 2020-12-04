@@ -554,3 +554,17 @@ paste transcripts.txt annotations.txt > "$species"."$gbase".annotations.tsv
 ```
 
 Note: for now I'm actually annotating without repeatmodeler/repeatmasker (using maker_opts_uniprot.ctl) until I convert repeat annotations from gff2 to gff3. Conda install of the software I want has been slow.
+
+Trying to get a functioning gff3 file:
+
+``bash
+# create GFF3 (from Daren Card's GitHub **add link**)
+./rmOutToGFF3custom.sh -o S_parvus_wtdbg.ctg.polished1.purged.fa.out > S_parvus_wtdbg.ctg.polished1.purged.fa.out.gff3
+# isolate complex repeats
+grep -v -e "Satellite" -e "Low_complexity" -e "Simple_repeat" S_parvus_wtdbg.ctg.polished1.purged.fa.out.gff3 \
+  > S_parvus_wtdbg.ctg.polished1.purged.fa.out.complex.gff3
+# reformat to work with MAKER
+cat S_parvus_wtdbg.ctg.polished1.purged.fa.out.complex.gff3 | \
+  perl -ane '$id; if(!/^\#/){@F = split(/\t/, $_); chomp $F[-1];$id++; $F[-1] .= "\;ID=$id"; $_ = join("\t", @F)."\n"} print $_' \
+  > S_parvus_wtdbg.ctg.polished1.purged.fa.out.complex.reformat.gff3
+  ```
