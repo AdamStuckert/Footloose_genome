@@ -557,7 +557,7 @@ Note: for now I'm actually annotating without repeatmodeler/repeatmasker (using 
 
 Trying to get a functioning gff3 file:
 
-``bash
+```bash
 # create GFF3 (from Daren Card's GitHub **add link**)
 ./rmOutToGFF3custom.sh -o S_parvus_wtdbg.ctg.polished1.purged.fa.out > S_parvus_wtdbg.ctg.polished1.purged.fa.out.gff3
 # isolate complex repeats
@@ -567,4 +567,6 @@ grep -v -e "Satellite" -e "Low_complexity" -e "Simple_repeat" S_parvus_wtdbg.ctg
 cat S_parvus_wtdbg.ctg.polished1.purged.fa.out.complex.gff3 | \
   perl -ane '$id; if(!/^\#/){@F = split(/\t/, $_); chomp $F[-1];$id++; $F[-1] .= "\;ID=$id"; $_ = join("\t", @F)."\n"} print $_' \
   > S_parvus_wtdbg.ctg.polished1.purged.fa.out.complex.reformat.gff3
-  ```
+```
+
+Quick note: Newer versions of Uniprot databases break this pipeline for some reason...which is quite annoying. Anyway, this works if I use an older version! I will update this with the path to that fasta file later.
