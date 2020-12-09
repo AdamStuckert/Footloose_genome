@@ -1,4 +1,10 @@
-Downloaded data from the 5th SMRTcell and checked md5sums. Converted good reads (subreads) to fasta files using `samtools fasta`.
+#### Genome Assembly for the Borneon foot flagging frog
+
+This is our approach to assembling, error correcting, and annotating this genome.
+
+### Data overview
+
+Downloaded data from the 5 PacBio SMRTcells and checked md5sums. Converted good reads (subreads) to fasta files using `samtools fasta`.
 
 Quick diagnostics on read data:
 
@@ -9,7 +15,7 @@ cd $HOME/footloose_genome/raw_data
 readlengths.py S_parvus_smrtcell_4.fasta S_parvus_smrtcell_5.fasta.txt
 ```
 
-### Overview of all data 
+## Total data:
 
 SMRTcell | Reads | Bases | Average read length | Read N50
 -- | -- | -- | -- | --
