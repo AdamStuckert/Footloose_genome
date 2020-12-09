@@ -1,4 +1,4 @@
-#### Genome Assembly for the Borneon foot flagging frog
+## Genome Assembly for the Borneon foot flagging frog
 
 This is our approach to assembling, error correcting, and annotating this genome.
 
@@ -15,7 +15,7 @@ cd $HOME/footloose_genome/raw_data
 readlengths.py S_parvus_smrtcell_4.fasta S_parvus_smrtcell_5.fasta.txt
 ```
 
-## Total data:
+#### Total data:
 
 SMRTcell | Reads | Bases | Average read length | Read N50
 -- | -- | -- | -- | --
