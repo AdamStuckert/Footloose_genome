@@ -324,6 +324,13 @@ cat raw_data/RNAseqData/SRR*2.fastq > raw_data/RNAseqData/combined.R2.fq
 delete files for quota
 rm raw_data/RNAseqData/SRR*
 
+# subsample to 40 million reads
+seqtk sample -s 13 raw_data/RNAseqData/combined.R1.fq.gz 40000000 > raw_data/RNAseqData/multitissue.subsamp.R1.fq
+seqtk sample -s 13 raw_data/RNAseqData/combined.R2.fq.gz 40000000 > raw_data/RNAseqData/multitissue.subsamp.R2.fq
+
+delete files for quota
+# rm raw_data/RNAseqData/SRR*
+
 # prep
 mkdir ORPmulti
 cd ORPmulti
@@ -332,21 +339,15 @@ cd ORPmulti
 # ahw ya from southie? ya want some oystas??
 oyster.mk main \
 TPM_FILT=1 \
-MEM=300 \
-CPU=40 \
-SPADES1_KMER=60 \
-SPADES2_KMER=40 \
-READ1=$HOME/footloose_genome/raw_data/RNAseqData/combined.R1.fq \
-READ2=$HOME/footloose_genome/raw_data/RNAseqData/combined.R2.fq \
+MEM=100 \
+CPU=24 \
+SPADES1_KMER=61 \
+SPADES2_KMER=41 \
+READ1=$HOME/footloose_genome/raw_data/RNAseqData/multitissue.subsamp.R1.fq \
+READ2=$HOME/footloose_genome/raw_data/RNAseqData/multitissue.subsamp.R2.fq \
 RUNOUT=Bullfrog_multitissues_ORP
+
 ```
-
-At this point I then removed any sequences smaller than **500 BP.** Note: this is a placeholder. I will examine these files then make an informed decision. But basically what I want to do is remove errant/duplicated annotations from really small transcripts in the assembly. 
-
-```bash
-## code to do this here.
-```
-
 
 I then analyzed these with TransRate and BUSCO using the tetrapoda database.
 
