@@ -242,7 +242,9 @@ S_parvus.4.0.polished1.purged | 3,931,525,283 | 620,561 | 18,095 |  C:74.4%[S:73
 
 
 
+I ran the purged assembly through BUSCO v4.1., using tetrapoda_odb10 (eukaryota, 2020-09-10
 
+C:74.5%[S:73.7%,D:0.8%],F:6.4%,M:19.1%,n:5310
 
 
 
