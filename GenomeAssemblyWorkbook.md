@@ -603,6 +603,17 @@ S_parvus.4.0.polished1 | 3,982,189,551 | 611,229 | 22,402 | 0.0 | C:74.4%[S:73.2
 S_parvus.4.0.polished2 | 3,918,212,060 | 609,425 | 20,281 | 0.0 | C:73.3%[S:72.0%,D:1.3%],F:11.5%,M:15.2%,n:3950
 S_parvus.4.0.preadspolished1 | 3,963,679,315 | 605,739 | 23,418 |  C:72.9%[S:71.6%,D:1.3%],F:11.5%,M:15.6%,n:3950
 S_parvus.4.0.polished1.purged | 3,931,525,283 | 620,561 | 18,095 |  C:74.5%[S:73.7%,D:0.8%],F:6.4%,M:19.1%,n:5310
-S_parvus.4.0.polished1.purged.ontscaffolded | 3,931,849,078 | 623,278 | 18,032 |  
+S_parvus.4.0.polished1.purged.ontscaffolded | 3,931,849,078 | 623,278 | 18,032 |  C:74.5%[S:73.7%,D:0.8%],F:6.4%,M:19.1%,n:5310
 
 Marginal improvement in contiguity, with 63 contigs fewer. Lets see how BUSCO does (probably not much better, and probably needs a round of gapfilling).
+
+
+### "Low coverage parameters"
+
+I also ran an assembly with different parameters for low coverage. Took a solid 45+ days to complete, but finish it did!
+
+Assembly | Genome Size (GB) | Contig N50 | Number of Contigs | %Ns | BUSCO 
+--- | --- | --- | --- | --- | --
+S_parvus.2.0_lowcoverage  | 3,999,955,656 | 504,234 | 31,601 | 0.00 | C:72.0%[S:71.4%,D:0.6%],F:6.4%,M:21.6%,n:5310
+
+This represents a modest increase in genic content relative to the other initial assembly. We do lose a bit of contiguity, but this is likely because we are pulling in more of the genome overall. Many of these genomic regions seem to be in smaller contigs, which is fine if we get improvement. I'll try to polish this assembly.
