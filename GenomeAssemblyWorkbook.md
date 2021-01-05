@@ -617,3 +617,10 @@ Assembly | Genome Size (GB) | Contig N50 | Number of Contigs | %Ns | BUSCO
 S_parvus.2.0_lowcoverage  | 3,999,955,656 | 504,234 | 31,601 | 0.00 | C:72.0%[S:71.4%,D:0.6%],F:6.4%,M:21.6%,n:5310
 
 This represents a modest increase in genic content relative to the other initial assembly. We do lose a bit of contiguity, but this is likely because we are pulling in more of the genome overall. Many of these genomic regions seem to be in smaller contigs, which is fine if we get improvement. I'll try to polish this assembly.
+
+```bash
+# fix sequence headers:
+awk '{print $1}' S_parvus_wtdbg_lowcoverage.ctg.polished.fa > tmp.fa
+mv tmp.fa S_parvus_wtdbg_lowcoverage.ctg.polished.fa
+```
+
