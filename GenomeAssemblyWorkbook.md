@@ -625,3 +625,60 @@ awk '{print $1}' S_parvus_wtdbg_lowcoverage.ctg.polished.fa > tmp.fa
 mv tmp.fa S_parvus_wtdbg_lowcoverage.ctg.polished.fa
 ```
 
+### Scaffolding with RNA data
+
+What if I scaffold the assembly with bullfrog RNA seq data? Will this help recover missing genic content? I am going to run this on the `S_parvus.4.0.polished1.purged.fa` version of the genome (the one that was annotated).
+
+```bash
+#!/bin/bash
+#SBATCH --partition=macmanes,shared
+#SBATCH -J PRNAscaf
+#SBATCH --cpus-per-task=40
+#SBATCH --output PRNAscaf.log
+#SBATCH --mem 300Gb
+#SBATCH --exclude=node117,node118
+
+
+# input files
+ASSEMBLY="$HOME/footloose_genome/genome_versions/S_parvus_wtdbg.ctg.polished1.purged.fa"
+READ1="$HOME/footloose_genome/raw_data/RNAseqData/allbullfrog.R1.fq.gz"
+READ2="$HOME/footloose_genome/raw_data/RNAseqData/allbullfrog.R2.fq.gz"
+mkdir rna_scaffold
+
+# cat all bullfrog reads
+#cd $HOME/footloose_genome/raw_data/RNAseqData/
+#zcat > allbullfrog.R1.fq
+#zcat > allbullfrog.R2.fq
+#gzip allbullfrogR*
+cd rna_scaffold
+
+##### Maping with HiSat2
+printf "\n\n\n#####################################################################\n\n\n"
+printf "\n\n\n#####################################################################\n\n\n"
+printf "\n\n\n################## Indexing genome with HiSat2 ######################\n\n\n"
+printf "\n\n\n#####################################################################\n\n\n"
+printf "\n\n\n#####################################################################\n\n\n"
+
+hisat2-build -p 40 $ASSEMBLY ${ASSEMBLY}_hisat
+
+
+printf "\n\n\n#####################################################################\n\n\n"
+printf "\n\n\n#####################################################################\n\n\n"
+printf "\n\n\n################# Alighing RNA reads with HiSat2 ####################\n\n\n"
+printf "\n\n\n#####################################################################\n\n\n"
+printf "\n\n\n#####################################################################\n\n\n"
+
+hisat2 --threads 40 -x ${ASSEMBLY}_hisat -1 $READ1 -2 $READ2 -k 3 -p 10 --pen-noncansplice 1000000 -S input.sam
+
+printf "\n\n\n#####################################################################\n\n\n"
+printf "\n\n\n#####################################################################\n\n\n"
+printf "\n\n\n#################### Scaffolding with P_RNA #######################\n\n\n"
+printf "\n\n\n#####################################################################\n\n\n"
+printf "\n\n\n#####################################################################\n\n\n"
+
+P_RNA_scaffolder.sh -d $HOME/software/P_RNA_scaffolder -i input.sam -j $ASSEMBLY -F $READ1 -R $READ2  -t 40
+
+echo Donezos
+```
+
+
