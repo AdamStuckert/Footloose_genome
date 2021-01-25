@@ -681,4 +681,9 @@ P_RNA_scaffolder.sh -d $HOME/software/P_RNA_scaffolder -i input.sam -j $ASSEMBLY
 echo Donezos
 ```
 
+Results:
 
+Assembly | Genome Size (GB) | Contig N50 | Number of Contigs | Scaffold N50 | Number of Scaffolds | BUSCO 
+--- | --- | --- | --- | --- | --- | --- | ---
+S_parvus.4.0.polished1.purged | 3,931,525,283 | 620,561 | 18,095 | NA | NA | C:74.5%[S:73.7%,D:0.8%],F:6.4%,M:19.1%,n:5310
+S_parvus.4.0.polished1.purged.RNAscaffolded | 3,931,615,824 | 620,561 | 18,095 | 688,860 | 17,190 | pending
