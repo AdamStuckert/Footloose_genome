@@ -548,10 +548,10 @@ $MAKER/gff3_merge -d "$species".maker.output/"$species"_master_datastore_index.l
 lastal -P22 /mnt/lustre/macmaneslab/macmanes/transporters/swissprot "$species"."$gbase".all.maker.proteins.fasta -f BlastTab > blast.out
 $MAKER/maker_functional_fasta /mnt/lustre/macmaneslab/macmanes/transporters/uniprot_sprot.fasta blast.out "$species"."$gbase".all.maker.proteins.fasta > "$species"."$gbase".functional.proteins.fasta
 $MAKER/maker_functional_fasta /mnt/lustre/macmaneslab/macmanes/transporters/uniprot_sprot.fasta blast.out "$species"."$gbase".all.maker.transcripts.fasta > "$species"."$gbase".functional.transcripts.fasta
-MAKER/maker_functional_gff /mnt/lustre/macmaneslab/macmanes/transporters/uniprot_sprot.fasta blast.out "$species"."$gbase".gff3 > "$species"."$gbase".functional.gff3
-MAKER/maker_map_ids --prefix "$PREFIX"_ --justify 6 "$species"."$gbase".functional.gff3 > "$species"."$gbase".genome.all.id.map
-MAKER/map_fasta_ids "$species"."$gbase".genome.all.id.map  "$species"."$gbase".functional.proteins.fasta
-MAKER/map_gff_ids "$species"."$gbase".genome.all.id.map  "$species"."$gbase".functional.gff3
+$MAKER/maker_functional_gff /mnt/lustre/macmaneslab/macmanes/transporters/uniprot_sprot.fasta blast.out "$species"."$gbase".gff3 > "$species"."$gbase".functional.gff3
+$MAKER/maker_map_ids --prefix "$PREFIX"_ --justify 6 "$species"."$gbase".functional.gff3 > "$species"."$gbase".genome.all.id.map
+$MAKER/map_fasta_ids "$species"."$gbase".genome.all.id.map  "$species"."$gbase".functional.proteins.fasta
+$MAKER/map_gff_ids "$species"."$gbase".genome.all.id.map  "$species"."$gbase".functional.gff3
 $MAKER/map_fasta_ids "$species"."$gbase".genome.all.id.map  "$species"."$gbase".functional.transcripts.fasta
 
 # get annotation information for RNAseq analyses
