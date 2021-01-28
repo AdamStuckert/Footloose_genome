@@ -124,3 +124,46 @@ bedtools getfasta -fi $GENOME -bed $bed -name > $bedname.fa
 done
 
 ```
+
+
+## Pulling out sequences from other organisms.
+
+This section will pull out our genes of interest from a variety of taxa. First up, using an R script to identify the taxa ID of all of our groups.
+
+```R
+library(rentrez)
+library(XML)
+# If you are using many many searches and want to go faster than 3/second, you will need a key. https://ncbiinsights.ncbi.nlm.nih.gov/2017/11/02/new-api-keys-for-the-e-utilities/   
+#set_entrez_key("YOURKEY") # I did not do this because I wrote a short pause in my function
+
+## function to pull out taxa IDs
+fetch_taxid = function(x){
+  ret = NA
+  tryCatch({
+    search = entrez_search(db="taxonomy",term = x,)
+    fetch = xmlToDataFrame(entrez_fetch(db="taxonomy",id=search$ids,rettype="xml"))
+    ret=fetch$TaxId 
+  }, error = function(e) {
+    ret = NA
+  })
+  return(ret)
+}
+
+taxas=c("amphibia", "anolis carolinensis", "chicken")
+
+ID.DF <- data.frame(matrix(ncol=2,nrow=0, dimnames=list(NULL, c("taxa", "entrez_ID"))))
+for (tax in taxas){
+  ID <- fetch_taxid(tax)
+  tmp <- c(tax, ID)
+  ID.DF <- rbind(ID.DF, tmp)
+  Sys.sleep(1) # this is so that we don't get interrupted due to too many searches
+}
+
+# rename colnames in df
+colnames(ID.DF) <- c("taxa", "entrez_ID")
+
+# save the datas
+write.table(ID.DF, "taxaIDs.tsv", sep = "\t", row.names = FALSE)
+```
+
+Switch to bash to use eutils to actually pull out sequences. More details for that soon...
