@@ -167,3 +167,17 @@ write.table(ID.DF, "taxaIDs.tsv", sep = "\t", row.names = FALSE)
 ```
 
 Switch to bash to use eutils to actually pull out sequences. More details for that soon...
+
+First...where is this stored on our cluster??
+
+`conda find efetch`
+
+Lets do it.
+
+```bash
+module purge
+ml anaconda/colsa
+conda activate busco-5.beta
+
+# real code here eventually....
+```
