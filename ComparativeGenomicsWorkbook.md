@@ -180,4 +180,36 @@ ml anaconda/colsa
 conda activate busco-5.beta
 
 # real code here eventually....
+# for now, a test
+taxid=9031 # this is the chicken
+# desired search: (AR[Gene Name]) AND 9031[Organism]
+# example:
+
+esearch -db nucleotide -query "txid9031 AND AR[gene]" | efetch -format fasta > bakbaktest3.fa
 ```
+
+Now to do a big, systematic search.
+
+```bash
+# call right env
+module purge
+ml anaconda/colsa
+conda activate busco-5.beta
+
+# for loop for the genes we want to search:
+for gene in $(cat Genes2Search.txt)
+do
+
+# inner for loop to pull in taxonomy ids
+for taxa in $(cat taxaIDs.tsv)
+do
+
+# search
+printf "Searching for %s in %s\n" "$gene" "$taxa"
+esearch -db nucleotide -query "txid$taxa AND $gene[gene]" | efetch -format fasta > ${gene}_${taxa}.fa
+
+done
+done
+```
+
+Note, this works. Now I just need to populate the taxa IDs via R and run it all.
