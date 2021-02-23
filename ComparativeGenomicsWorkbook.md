@@ -201,7 +201,7 @@ for gene in $(cat Genes2Search.txt)
 do
 
 # inner for loop to pull in taxonomy ids
-for taxa in $(cat taxaIDs.tsv)
+for taxa in $(cat taxaIDs.tsv) # note the way this markdown is written it isn't technically correct because I've just extracted the TaxaID column from the R script
 do
 
 # search
