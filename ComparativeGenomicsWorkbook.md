@@ -262,3 +262,20 @@ View alignments:
 Navigate here: https://www.ebi.ac.uk/Tools/msa/mview/
 
 Make a tree:
+
+```bash
+mkdir comparativegenomics/treefiles
+for aln in $(ls comparativegenomics/alignments/*aln)
+do
+gene=$(basename $aln | sed "s/.aln//")
+printf "########################################\n###### Producing tree file on $gene ######\n########################################\n"
+iqtree -s $aln -st DNA -m HKY -bb 1000 -pre comparativegenomics/treefiles/${gene} # add -o for outgroup!
+done
+```
+
+Ok, all of this preliminarily works! Next steps:
+
+1. Identify all the taxa to include in the real version
+2. Make it a slurm script, add in threads (24)
+3. Verify best practices/choices in this pipeline
+4. What are the next steps? How do we make inferences from this, how do we visualize these data?
