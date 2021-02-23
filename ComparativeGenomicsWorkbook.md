@@ -214,4 +214,51 @@ done
 done
 ```
 
-Note, this works. Now I just need to populate the taxa IDs via R and run it all.
+Note, this works. Now I just need to populate the taxa IDs via R and run it all. # future issue, once I've worked through a single example
+
+Extract one sequence per gene x taxa combo:
+
+```bash
+for fasta in $(ls comparativegenomics/taxaspecificfastas/*fa)
+do
+# unwrap fastas
+unwrap_fasta $fasta tmp.fa
+# extract only first seq
+head -n2 tmp.fa > $fasta
+done
+```
+
+Merge all the fasta files:
+
+```bash
+mkdir comparativegenomics/collatedgenefastas
+for gene in $(cat comparativegenomics/Genes2Search.txt)
+do
+cat genesearchoutput/${gene}.fa > comparativegenomics/collatedgenefastas/${gene}.fa
+cat $(ls comparativegenomics/taxaspecificfastas/${gene}*fa) >> comparativegenomics/collatedgenefastas/${gene}.fa
+
+
+
+done
+```
+
+Align with mafft.
+
+```bash
+module purge
+ml linuxbrew/colsa
+mkdir comparativegenomics/alignments
+for fasta in $(ls comparativegenomics/collatedgenefastas/*fa)
+do
+# get gene name
+gene=$(basename $fasta | sed "s/.fa//")
+# run mafft to align
+mafft --reorder --localpair --thread 6 $fasta  > comparativegenomics/alignments/$gene.aln
+done
+```
+
+View alignments:
+
+Navigate here: https://www.ebi.ac.uk/Tools/msa/mview/
+
+Make a tree:
