@@ -196,6 +196,8 @@ module purge
 ml anaconda/colsa
 conda activate busco-5.beta
 
+mkdir taxaspecificfastas
+
 # for loop for the genes we want to search:
 for gene in $(cat Genes2Search.txt)
 do
@@ -206,7 +208,7 @@ do
 
 # search
 printf "Searching for %s in %s\n" "$gene" "$taxa"
-esearch -db nucleotide -query "txid$taxa AND $gene[gene]" | efetch -format fasta > ${gene}_${taxa}.fa
+esearch -db nucleotide -query "txid$taxa AND $gene[gene]" | efetch -format fasta > taxaspecificfastas/${gene}_${taxa}.fa
 
 done
 done
