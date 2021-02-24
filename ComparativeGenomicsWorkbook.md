@@ -125,10 +125,40 @@ done
 
 ```
 
+### Identifying taxa to include in our comparative genomic approach
 
+I queried NCBI's genomes on Feb 24, 2021 for all amphibians. Results:
+
+```
+Ambystoma mexicanum
+Bufo bufo
+Bufo gargarizans
+Geotrypetes seraphini
+Leptobrachium leishanense
+Limnodynastes dumerilii
+Lithobates catesbeianus
+Microcaecilia unicolor
+Nanorana parkeri
+Oophaga pumilio
+Pyxicephalus adspersus
+Rana temporaria
+Rhinatrema bivittatum
+Rhinella marina
+Scaphiopus couchii
+Scaphiopus holbrookii
+Spea bombifrons
+Spea multiplicata
+Xenopus laevis
+Xenopus tropicalis
+```
+
+We will use the green anole and chicken as outgroups. 
+
+I also queried all of the manakin genera (Antilophia, Ceratopipra, Chiroxiphia, Chloropipo, Corapipo, Cryptopipo, Heterocercus, Ilicura, Lepidothrix, Machaeropterus, Manacus, Masius, Neopelma, Pipra, Pseudopipra, Tyranneutes, Xenopipo). JK. The website is shit and you can't search just by genus name! Nonsense.
 ## Pulling out sequences from other organisms.
 
-This section will pull out our genes of interest from a variety of taxa. First up, using an R script to identify the taxa ID of all of our groups.
+
+This code will pull out our genes of interest from a variety of taxa. First up, using an R script to identify the taxa ID of all of our groups.
 
 ```R
 library(rentrez)
@@ -188,57 +218,48 @@ colnames(ID.DF) <- c("taxa", "entrez_ID")
 write.table(ID.DF, "taxaIDs.tsv", sep = "\t", row.names = FALSE)
 ```
 
-Switch to bash to use eutils to actually pull out sequences. More details for that soon...
+### Downloading sequences, aligning, and creating gene trees
 
-First...where is this stored on our cluster??
+I'll now switch to bash to use eutils to actually pull out sequences. Currently, my approach is a bit rough, but works. I'll probably need to do a bit of a cleanup later. The general approach is to download all the genes of interest from our taxa of choice using `eutils`, pull out only the first sequence, create a single fasta file per gene (**I probably need to add a line to rename the sequences to something easier to read/interpret**), run mafft to align, and iqtree to create a tree.
 
-`conda find efetch`
-
-Lets do it.
+Script:
 
 ```bash
+#!/bin/bash
+#SBATCH --job-name=compgen
+#SBATCH --output=compgen.log
+#SBATCH --cpus-per-task=24
+#SBATCH --partition=macmanes,shared
+#SBATCH --exclude=node117,node118
+
+
+# prep
 module purge
 ml anaconda/colsa
 conda activate busco-5.beta
 
-# real code here eventually....
-# for now, a test
-taxid=9031 # this is the chicken
-# desired search: (AR[Gene Name]) AND 9031[Organism]
-# example:
+# Now to do a big, systematic search.
+mkdir comparativegenomics
+mkdir comparativegenomics/taxaspecificfastas
 
-esearch -db nucleotide -query "txid9031 AND AR[gene]" | efetch -format fasta > bakbaktest3.fa
-```
-
-Now to do a big, systematic search.
-
-```bash
-# call right env
-module purge
-ml anaconda/colsa
-conda activate busco-5.beta
-
-mkdir taxaspecificfastas
-
+printf "########################################\n###### Extracting gene sequences ######\n########################################\n"
 # for loop for the genes we want to search:
-for gene in $(cat Genes2Search.txt)
+for gene in $(cat comparativegenomics/Genes2Search.txt)
 do
 
 # inner for loop to pull in taxonomy ids
-for taxa in $(cat taxaIDs.tsv) # note the way this markdown is written it isn't technically correct because I've just extracted the TaxaID column from the R script
+for taxa in $(cat comparativegenomics/taxaIDs.tsv) # note the way this markdown is written it isn't technically correct because I've just extracted the TaxaID column from the R script
 do
 
 # search
 printf "Searching for %s in %s\n" "$gene" "$taxa"
-esearch -db nucleotide -query "txid$taxa AND $gene[gene]" | efetch -format fasta > taxaspecificfastas/${gene}_${taxa}.fa
+esearch -db nucleotide -query "txid$taxa AND $gene[gene]" | efetch -format fasta > comparativegenomics/taxaspecificfastas/${gene}_${taxa}.fa
 
 done
 done
-```
 
-Note, this works. Now I just need to populate the taxa IDs via R and run it all. # future issue, once I've worked through a single example
-
-Extract one sequence per gene x taxa combo:
+# Extract one sequence per gene x taxa combo:
+printf "########################################\n###### Extracting one sequence per gene ######\n########################################\n"
 
 ```bash
 for fasta in $(ls comparativegenomics/taxaspecificfastas/*fa)
@@ -248,11 +269,11 @@ unwrap_fasta $fasta tmp.fa
 # extract only first seq
 head -n2 tmp.fa > $fasta
 done
-```
 
-Merge all the fasta files:
+# Merge all the fasta files:
 
-```bash
+printf "########################################\n###### Merging fasta files ######\n########################################\n"
+
 mkdir comparativegenomics/collatedgenefastas
 for gene in $(cat comparativegenomics/Genes2Search.txt)
 do
@@ -262,11 +283,11 @@ cat $(ls comparativegenomics/taxaspecificfastas/${gene}*fa) >> comparativegenomi
 
 
 done
-```
 
-Align with mafft.
+# Align with mafft.
 
-```bash
+printf "########################################\n###### Aligning sequences with mafft ######\n########################################\n"
+
 module purge
 ml linuxbrew/colsa
 mkdir comparativegenomics/alignments
@@ -277,15 +298,16 @@ gene=$(basename $fasta | sed "s/.fa//")
 # run mafft to align
 mafft --reorder --localpair --thread 6 $fasta  > comparativegenomics/alignments/$gene.aln
 done
-```
 
-View alignments:
 
-Navigate here: https://www.ebi.ac.uk/Tools/msa/mview/
+# View alignments:
 
-Make a tree:
+# Navigate here: https://www.ebi.ac.uk/Tools/msa/mview/
 
-```bash
+# Make a tree for each gene:
+
+printf "########################################\n###### Making gene trees ######\n########################################\n"
+
 mkdir comparativegenomics/treefiles
 for aln in $(ls comparativegenomics/alignments/*aln)
 do
@@ -303,31 +325,4 @@ Ok, all of this preliminarily works! Next steps:
 4. What are the next steps? How do we make inferences from this, how do we visualize these data?
 
 
-### Identifying taxa to include
 
-I queried NCBI's genomes on Feb 24, 2021 for all amphibians. Results:
-
-```
-Ambystoma mexicanum
-Bufo bufo
-Bufo gargarizans
-Geotrypetes seraphini
-Leptobrachium leishanense
-Limnodynastes dumerilii
-Lithobates catesbeianus
-Microcaecilia unicolor
-Nanorana parkeri
-Oophaga pumilio
-Pyxicephalus adspersus
-Rana temporaria
-Rhinatrema bivittatum
-Rhinella marina
-Scaphiopus couchii
-Scaphiopus holbrookii
-Spea bombifrons
-Spea multiplicata
-Xenopus laevis
-Xenopus tropicalis
-```
-
-I also queried all of the manakin genera (Antilophia, Ceratopipra, Chiroxiphia, Chloropipo, Corapipo, Cryptopipo, Heterocercus, Ilicura, Lepidothrix, Machaeropterus, Manacus, Masius, Neopelma, Pipra, Pseudopipra, Tyranneutes, Xenopipo). JK. The website is shit and you can't search just by genus name! Nonsense.
