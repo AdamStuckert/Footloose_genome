@@ -149,7 +149,29 @@ fetch_taxid = function(x){
   return(ret)
 }
 
-taxas=c("amphibia", "anolis carolinensis", "chicken")
+taxas=c(
+"Ambystoma mexicanum",
+"Bufo bufo",
+"Bufo gargarizans",
+"Geotrypetes seraphini",
+"Leptobrachium leishanense",
+"Limnodynastes dumerilii",
+"Lithobates catesbeianus",
+"Microcaecilia unicolor",
+"Nanorana parkeri",
+"Oophaga pumilio",
+"Pyxicephalus adspersus",
+"Rana temporaria",
+"Rhinatrema bivittatum",
+"Rhinella marina",
+"Scaphiopus couchii",
+"Scaphiopus holbrookii",
+"Spea bombifrons",
+"Spea multiplicata",
+"Xenopus laevis",
+"Xenopus tropicalis",
+"anolis carolinensis", 
+"chicken")
 
 ID.DF <- data.frame(matrix(ncol=2,nrow=0, dimnames=list(NULL, c("taxa", "entrez_ID"))))
 for (tax in taxas){
@@ -279,3 +301,33 @@ Ok, all of this preliminarily works! Next steps:
 2. Make it a slurm script, add in threads (24)
 3. Verify best practices/choices in this pipeline
 4. What are the next steps? How do we make inferences from this, how do we visualize these data?
+
+
+### Identifying taxa to include
+
+I queried NCBI's genomes on Feb 24, 2021 for all amphibians. Results:
+
+```
+Ambystoma mexicanum
+Bufo bufo
+Bufo gargarizans
+Geotrypetes seraphini
+Leptobrachium leishanense
+Limnodynastes dumerilii
+Lithobates catesbeianus
+Microcaecilia unicolor
+Nanorana parkeri
+Oophaga pumilio
+Pyxicephalus adspersus
+Rana temporaria
+Rhinatrema bivittatum
+Rhinella marina
+Scaphiopus couchii
+Scaphiopus holbrookii
+Spea bombifrons
+Spea multiplicata
+Xenopus laevis
+Xenopus tropicalis
+```
+
+I also queried all of the manakin genera (Antilophia, Ceratopipra, Chiroxiphia, Chloropipo, Corapipo, Cryptopipo, Heterocercus, Ilicura, Lepidothrix, Machaeropterus, Manacus, Masius, Neopelma, Pipra, Pseudopipra, Tyranneutes, Xenopipo). JK. The website is shit and you can't search just by genus name! Nonsense.
