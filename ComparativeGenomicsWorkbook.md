@@ -222,18 +222,9 @@ write.table(ID.DF, "taxaIDs.tsv", sep = "\t", row.names = FALSE)
 
 I'll now switch to bash to use eutils to actually pull out sequences. Currently, my approach is a bit rough, but works. I'll probably need to do a bit of a cleanup later. The general approach is to download all the genes of interest from our taxa of choice using `eutils`, pull out only the first sequence, create a single fasta file per gene (**I probably need to add a line to rename the sequences to something easier to read/interpret**), run mafft to align, and iqtree to create a tree.
 
-Script:
+Script #1, extracting gene sequences:
 
 ```bash
-#!/bin/bash
-#SBATCH --job-name=compgen
-#SBATCH --output=compgen.log
-#SBATCH --cpus-per-task=24
-#SBATCH --partition=macmanes,shared
-#SBATCH --exclude=node117,node118
-
-
-# prep
 module purge
 ml anaconda/colsa
 conda activate busco-5.beta
@@ -257,6 +248,24 @@ esearch -db nucleotide -query "txid$taxa AND $gene[gene]" | efetch -format fasta
 
 done
 done
+```
+
+Script #2, all the rest of the things
+
+```bash
+#!/bin/bash
+#SBATCH --job-name=compgen
+#SBATCH --output=compgen.log
+#SBATCH --cpus-per-task=24
+#SBATCH --partition=macmanes,shared
+#SBATCH --exclude=node117,node118
+
+
+# prep
+module purge
+ml anaconda/colsa
+conda activate busco-5.beta
+
 
 # Extract one sequence per gene x taxa combo:
 printf "########################################\n###### Extracting one sequence per gene ######\n########################################\n"
