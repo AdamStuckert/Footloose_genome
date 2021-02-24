@@ -296,7 +296,7 @@ do
 # get gene name
 gene=$(basename $fasta | sed "s/.fa//")
 # run mafft to align
-mafft --reorder --localpair --thread 6 $fasta  > comparativegenomics/alignments/$gene.aln
+mafft --reorder --localpair --thread 24 $fasta  > comparativegenomics/alignments/$gene.aln
 done
 
 
@@ -313,7 +313,7 @@ for aln in $(ls comparativegenomics/alignments/*aln)
 do
 gene=$(basename $aln | sed "s/.aln//")
 printf "########################################\n###### Producing tree file on $gene ######\n########################################\n"
-iqtree -s $aln -st DNA -m HKY -bb 1000 -pre comparativegenomics/treefiles/${gene} # add -o for outgroup!
+iqtree -s $aln -st DNA -m HKY -nt 24 -bb 1000 -pre comparativegenomics/treefiles/${gene} # add -o for outgroup!
 done
 ```
 
