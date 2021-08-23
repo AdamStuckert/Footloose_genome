@@ -247,8 +247,46 @@ I ran the purged assembly through BUSCO v4.1., using tetrapoda_odb10 (eukaryota,
 C:74.5%[S:73.7%,D:0.8%],F:6.4%,M:19.1%,n:5310
 
 
+### Transcriptome assembly for foot-flaggin frog
 
+The reads are DEEP. SO I subsmapled reads before doing an assembly.
 
+```bash
+seqtk sample -s13 BR2_CKDL210014905-1B_HJLVNDSX2_L1_1.fq.gz 20000000 > BR2_sub_1.fq
+seqtk sample -s13 BR2_CKDL210014905-1B_HJLVNDSX2_L1_2.fq.gz 20000000 > BR2_sub_2.fq
+
+seqtk sample -s13 Sp22_CKDL210014904-1B_HJLVNDSX2_L1_1.fq.gz 20000000 > SP22_sub_1.fq
+seqtk sample -s13 Sp22_CKDL210014904-1B_HJLVNDSX2_L1_2.fq.gz 20000000 > SP22_sub_2.fq
+
+seqtk sample -s13 LM2_CKDL210014907-1B_HJLVNDSX2_L1_1.fq.gz 20000000 > LM2_sub_1.fq
+seqtk sample -s13 LM2_CKDL210014907-1B_HJLVNDSX2_L1_2.fq.gz 20000000 > LM2_sub_2.fq
+```
+
+Assembly:
+
+```
+#!/bin/bash
+#SBATCH --partition=macmanes,shared
+#SBATCH -J ORP
+#SBATCH --output ORP.log
+####SBATCH --mem 300Gb
+#SBATCH --cpus-per-task=24
+module purge
+module load anaconda/colsa
+
+source activate orp-20191014
+
+mkdir ORPtad
+cd ORPtad
+
+oyster.mk main \
+TPM_FILT=1 \
+MEM=275 \
+CPU=24 \
+READ1=$HOME/footloose_genome/RNAdata/S_parvus_sub.1.fq \
+READ2=$HOME/footloose_genome/RNAdata/S_parvus_sub.2.fq \
+RUNOUT=S_parvus_ORP
+```
 
 ### Prepping publicly available RNA seq data for genome annotation purposes
 
