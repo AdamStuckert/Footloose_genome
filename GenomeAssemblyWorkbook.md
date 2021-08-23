@@ -601,7 +601,7 @@ printf "\n\n\n################# Alighing RNA reads with HiSat2 #################
 printf "\n\n\n#####################################################################\n\n\n"
 printf "\n\n\n#####################################################################\n\n\n"
 
-hisat2 --threads 40 -x ${ASSEMBLY}_hisat -1 $READ1 -2 $READ2 -k 3 -p 10 --pen-noncansplice 1000000 -S input.sam
+hisat2 --threads 40 -x ${ASSEMBLY}_hisat -1 $READ1 -2 $READ2 -k 3 -p 40 --pen-noncansplice 1000000 -S input.sam
 
 printf "\n\n\n#####################################################################\n\n\n"
 printf "\n\n\n#####################################################################\n\n\n"
