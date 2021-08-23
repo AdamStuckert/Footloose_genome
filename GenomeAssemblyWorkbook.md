@@ -288,6 +288,7 @@ READ2=$HOME/footloose_genome/RNAdata/S_parvus_sub.2.fq \
 RUNOUT=S_parvus_ORP
 ```
 
+Next step: run transdecor to get only transcripts with predicted open reading frames. I will use those for genome annotation/genome scaffolding.
 
 ## Transcriptome results:
 
