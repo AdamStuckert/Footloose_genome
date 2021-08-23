@@ -577,17 +577,13 @@ What if I scaffold the assembly with bullfrog RNA seq data? Will this help recov
 
 
 # input files
-ASSEMBLY="$HOME/footloose_genome/genome_versions/S_parvus_wtdbg.ctg.polished1.purged.fa"
-READ1="$HOME/footloose_genome/raw_data/RNAseqData/allbullfrog.R1.fq.gz"
-READ2="$HOME/footloose_genome/raw_data/RNAseqData/allbullfrog.R2.fq.gz"
+ASSEMBLY="$HOME/footloose_genome/genome_versions/S_parvus_wtdbg.ctg.polished1.fa.gz"
+READ1="$HOME/footloose_genome/RNAdata/S_parvus_sub.1.fq"
+READ2="$HOME/footloose_genome/RNAdata/S_parvus_sub.2.fq"
 mkdir rna_scaffold
-
-# cat all bullfrog reads
-#cd $HOME/footloose_genome/raw_data/RNAseqData/
-#zcat > allbullfrog.R1.fq
-#zcat > allbullfrog.R2.fq
-#gzip allbullfrogR*
 cd rna_scaffold
+
+# This uses only the RNA seq reads that went in to the transcriptome assembly (60M total reads)
 
 ##### Maping with HiSat2
 printf "\n\n\n#####################################################################\n\n\n"
