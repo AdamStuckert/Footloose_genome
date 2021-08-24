@@ -619,7 +619,7 @@ Results:
 Assembly | Genome Size (GB) | Contig N50 | Number of Contigs | Scaffold N50 | Number of Scaffolds | BUSCO 
 --- | --- | --- | --- | --- | --- | --- 
 S_parvus.4.0.polished1.purged | 3,931,525,283 | 620,561 | 18,095 | NA | NA | C:74.5%[S:73.7%,D:0.8%],F:6.4%,M:19.1%,n:5310
-S_parvus.4.0.polished1.purged.RNAscaffolded | 3,931,570,524 | 620,561 | 18,095 | 659,821 | 17,643 | C:75.0%[S:74.1%,D:0.9%],F:6.3%,M:18.7%,n:5310
+S_parvus.4.0.polished1.RNAscaffolded | 3,982,265,665 | 611,229 | 22,402 | 657,682 | 21,709 | 
 
 
 For some reason including blat in the P_RNA pipeline reduces the increased contiguity by quite a bit. Almost 30 Kbp, and doesn't merge about 500 contigs. Interesting...
