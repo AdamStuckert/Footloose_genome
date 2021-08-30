@@ -497,6 +497,18 @@ cat $HOME/repbase/RepBase25.05.fasta/vrtrep.ref ${DIR}/${masked} > $HOME/footloo
 $HOME/software/RepeatMasker/RepeatMasker -pa 40 -gff -lib $HOME/footloose_genome/vertrepeats_parvusRepModel.fa -q $genome
 ```
 
+Following repeatmasking, I need to modify the gff file from RepeatMasker. RepeatMasker makes a gff2, Maker requires gff3.
+
+```bash
+cp S_parvus.4.0.polished1.RNAscaffoldedBWA.fa.masked S_parvus.4.0.polished1.RNAscaffoldedBWA.masked.fa
+samtools faidx S_parvus.4.0.polished1.RNAscaffoldedBWA.masked.fa
+
+awk 'BEGIN{ s = 0 }{ print $0 ";ID=rep" s; s = s + 1 }' \
+S_parvus.4.0.polished1.RNAscaffoldedBWA.fa.out.gff > \
+S_parvus.4.0.polished1.RNAscaffoldedBWA.fa.rm.gff3
+```
+
+
 ### Annotation
 
 First, a rousing round of repeat modeler:
