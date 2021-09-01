@@ -473,7 +473,7 @@ export AUGUSTUS_CONFIG_PATH=/mnt/lustre/macmaneslab/shared/augustus_config/confi
 ### input requires two fasta files. 1) the masked fasta file from RepeatMasker; 2) the genome assembly
 
 # get most masked fasta file from RepeatModeler. This assumes that the most recent run is the correct one!
-masked=$(ls -ltr repeat_modeler/RM_*/consensi.fa.classified | tail -n1 | awk '{print $NF}')
+masked=$(ls repeat_modeler2/*db-families.fa)
 maskedfile=$(basename $masked)
 
 echo This is the masked fasta file from RepeatModeler $masked
@@ -490,8 +490,10 @@ ln -s $ASSEMBLY
 which perl
 
 # make repeat library for parvus:
+# first, I need to modify the database of repeats so that RepeatMasker picks up classes (I think, this is a test)
+sed "s/\t/#/g" $HOME/repbase/RepBase25.05.fasta/vrtrep.ref | cut -d# -f 1-2 > $HOME/repbase/RepBase25.05.fasta/modifiedvertref.fa
 echo Using repeat libary from parvus $masked
-cat $HOME/repbase/RepBase25.05.fasta/vrtrep.ref ${DIR}/${masked} > $HOME/footloose_genome/vertrepeats_parvusRepModel.fa
+cat $HOME/repbase/RepBase25.05.fasta/modifiedvertref.fa ${DIR}/${masked} > $HOME/footloose_genome/vertrepeats_parvusRepModel.fa
 
 # run repeatmasker
 $HOME/software/RepeatMasker/RepeatMasker -pa 40 -gff -lib $HOME/footloose_genome/vertrepeats_parvusRepModel.fa -q $genome
