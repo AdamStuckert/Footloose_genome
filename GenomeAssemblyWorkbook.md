@@ -736,6 +736,38 @@ Quick note: Newer versions of Uniprot databases break this pipeline for some rea
 
 
 
+### major issues with annotation
+
+1. why can't I get the RepeatMasker gff file to work with Maker???
+2. My current approach is only annotating ~7k genes. I think this is inadequate, and I need to figure out why. Maybe too conservative with my mRNA evidence (TransDecoder pipeline and not allowing gene predictions?). I need to figure this out.
+
+
+
+
+
+## Gene expression analyses
+
+I am using STAR and htseq-count to align and count gene data.
+
+```bash
+GENOME="$HOME/footloose_genome/repeatmasker/S_parvus.4.0.polished1.RNAscaffoldedBWA.masked.fa"
+GFF="/mnt/oldhome/macmaneslab/ams1236/footloose_genome/maker_attemtp/maker_round2/Staurois_parvus.functional.gff3"
+READS_DIR="/mnt/lustre/macmaneslab/ams1236/footloose_genome/RNAdata"
+SUFFIX=".fq.gz"
+
+
+sbatch AlignmentReadCount.job  \
+$GENOME \
+$GFF \
+$READS_DIR \
+$SUFFIX
+```
+
+
+
+
+
+
 
 ## Continuing to "improve" the assembly
 
