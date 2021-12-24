@@ -6,7 +6,7 @@ This details our approach to conducting comparative genomics. Broadly speaking, 
 
 We are going to extract the sequences of the genes we want. As an easy first pass, I am going to extract the full sequence that has been identified as a "gene" by Maker. To do this, and to cut down on some compute time, I subsetted the annotation file to extract only the lines labelled as "gene".
 
-> awk '$3 == "gene" {print $0}' Staurois_parvus.S_parvus_wtdbg.ctg.polished1.purged.fa.functional.gff3 > Staurois_parvus.S_parvus_wtdbg.ctg.polished1.purged.genesonly.gff3
+> awk '$3 == "gene" {print $0}' Staurois_parvus.functional.gff3 > Staurois_parvus.functional.genesonly.gff3
 
 I then wrote a small script that finds all instances of the genes we want, and extracts the sequences into individual fasta files:
 
@@ -18,7 +18,8 @@ usage ()
 
     Extract all the genes I want from a genome.
 
-    Note: For this I am using a modified gff3 file which includes only what Maker has anotated as a "gene". I created this gene gff3 file using awk '$3 == "gene" {print $0}' Staurois_parvus.S_parvus_wtdbg.ctg.polished1.purged.fa.functional.gff3 > Staurois_parvus.S_parvus_wtdbg.ctg.polished1.purged.genesonly.gff3
+    Note: For this I am using a modified gff3 file which includes only what Maker has anotated as a "gene". 
+    
 }
 
 GFF="$HOME/footloose_genome/maker_rerun/Staurois_parvus.S_parvus_wtdbg.ctg.polished1.purged.genesonly.gff3"
