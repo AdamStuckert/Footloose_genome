@@ -437,3 +437,82 @@ cat $HOME/repbase/RepBase25.05.fasta/modifiedvertref.fa ${DIR}/${masked} > $HOME
 # run repeatmasker
 $HOME/software/RepeatMasker/RepeatMasker -pa 40 -gff -lib $HOME/footloose_genome/vertrepeats_parvusRepModel.fa -q $genome
 ```
+
+### Genome annotation
+
+```
+#!/bin/bash
+#SBATCH --partition=macmanes,shared
+#SBATCH -J maker
+#SBATCH --ntasks=220
+#SBATCH --mem 110Gb
+#SBATCH --output maker.log
+#SBATCH --open-mode=append
+#SBATCH --exclude=node117,node118
+
+
+module purge
+module load anaconda/colsa
+source activate maker-3.01.02
+module purge
+module load linuxbrew/colsa
+
+
+species="Staurois_parvus"
+genome="$HOME/footloose_genome/genome_versions/S_parvus.4.0.polished1.RNAscaffoldedBWA.fa"
+gbase=$(basename $genome | sed "s/.fasta//g" | sed "s/.fa.masked//g")
+PREFIX="S_parv"
+OUTPUT="maker"
+MAKER="/mnt/lustre/macmaneslab/ams1236/software/maker/src/bin"
+UNIPROT="/mnt/lustre/macmaneslab/macmanes/transporters/uniprot_sprot.fasta"
+
+
+mkdir -p $HOME/footloose_genome/${OUTPUT}
+cd $HOME/footloose_genome/${OUTPUT}
+
+#echo Running maker on $genome
+#echo Maker output going to $OUTPUT
+
+echo Using control files:
+echo "$HOME/footloose_genome/maker_data/maker_opts_uniprot.ctl"
+echo "$HOME/footloose_genome/maker_data/maker_bopts.ctl"
+echo "$HOME/footloose_genome/maker_data/maker_exe.ctl"
+
+mpiexec -n 220 maker \
+-fix_nucleotides -base "$species" -quiet \
+-genome "$genome" \
+$HOME/footloose_genome/maker_data/maker_opts_uniprot.ctl \
+$HOME/footloose_genome/maker_data/maker_bopts.ctl \
+$HOME/footloose_genome/maker_data/maker_exe.ctl
+
+fasta_merge -d "$species".maker.output/"$species"_master_datastore_index.log -o "$species"."$gbase"
+gff3_merge -d "$species".maker.output/"$species"_master_datastore_index.log -o "$species"."$gbase".gff3 -n
+
+
+echo Maker put in a few -- into protein seqs so i will fix those.
+fixers=$(grep -v "^>" Staurois_parvus.S_parvus_wtdbg.ctg.polished1.purged.fa.all.maker.proteins.fasta | grep "-")
+
+for tofix in $fixers
+do
+# sanity check that I'm not getting rid of things I shouldn't...
+echo How many instances of search in protein space
+grep $tofix Staurois_parvus.S_parvus_wtdbg.ctg.polished1.purged.fa.all.maker.proteins.fasta | wc -l
+newseq=$(echo $tofix | tr "-" "X")
+sed -i "s/$tofix/$newseq/" Staurois_parvus.S_parvus_wtdbg.ctg.polished1.purged.fa.all.maker.proteins.fasta 
+done
+
+lastal -P22 /mnt/lustre/macmaneslab/macmanes/transporters/swissprot "$species"."$gbase".all.maker.proteins.fasta -f BlastTab > blast.out
+maker_functional_fasta $UNIPROT blast.out "$species"."$gbase".all.maker.proteins.fasta > "$species"."$gbase".functional.proteins.fasta
+maker_functional_fasta $UNIPROT blast.out "$species"."$gbase".all.maker.transcripts.fasta > "$species"."$gbase".functional.transcripts.fasta
+maker_functional_gff $UNIPROT blast.out "$species"."$gbase".gff3 > "$species"."$gbase".functional.gff3
+maker_map_ids --prefix "$PREFIX"_ --justify 6 "$species"."$gbase".functional.gff3 > "$species"."$gbase".genome.all.id.map
+map_fasta_ids "$species"."$gbase".genome.all.id.map  "$species"."$gbase".functional.proteins.fasta
+map_gff_ids "$species"."$gbase".genome.all.id.map  "$species"."$gbase".functional.gff3
+map_fasta_ids "$species"."$gbase".genome.all.id.map  "$species"."$gbase".functional.transcripts.fasta
+
+# get annotation information for RNAseq analyses
+grep "^>" "$species"."$gbase".functional.transcripts.fasta | tr -d ">" > headers.txt
+awk '{print $1}' headers.txt  > transcripts.txt
+cut -f 2 -d '"' headers.txt  | sed "s/Similar to //g" > annotations.txt
+paste transcripts.txt annotations.txt > "$species"."$gbase".annotations.tsv
+```
