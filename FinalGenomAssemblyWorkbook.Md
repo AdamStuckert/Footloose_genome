@@ -200,37 +200,37 @@ What if I scaffold the assembly with bullfrog RNA seq data? Will this help recov
 
 
 # input files
-ASSEMBLY="$HOME/footloose_genome/genome_versions/S_parvus_wtdbg.ctg.polished1.fa.gz"
+ASSEMBLY="$HOME/footloose_genome/genome_versions/S_parvus_wtdbg.ctg.polished1.purged.fa"
 READ1="$HOME/footloose_genome/RNAdata/S_parvus_sub.1.fq"
 READ2="$HOME/footloose_genome/RNAdata/S_parvus_sub.2.fq"
-mkdir rna_scaffold
-cd rna_scaffold
+mkdir rna_scaffold_purged_bwa
+cd rna_scaffold_purged_bwa
 
 # This uses only the RNA seq reads that went in to the transcriptome assembly (60M total reads)
 
-##### Maping with HiSat2
-printf "\n\n\n#####################################################################\n\n\n"
-printf "\n\n\n#####################################################################\n\n\n"
-printf "\n\n\n################## Indexing genome with HiSat2 ######################\n\n\n"
-printf "\n\n\n#####################################################################\n\n\n"
-printf "\n\n\n#####################################################################\n\n\n"
+##### Maping with BWA
+printf "\n\n\n#####################################################################\n"
+printf "\n\n\n#####################################################################\n"
+printf "\n\n\n################## Indexing genome with BWA #########################\n"
+printf "\n\n\n#####################################################################\n"
+printf "\n\n\n#####################################################################\n"
 
-hisat2-build -p 40 $ASSEMBLY ${ASSEMBLY}_hisat
+bwa index $ASSEMBLY
+
+printf "\n\n\n#####################################################################\n"
+printf "\n\n\n#####################################################################\n"
+printf "\n\n\n################# Alighing RNA reads with BWA ####################\n"
+printf "\n\n\n#####################################################################\n"
+printf "\n\n\n#####################################################################\n"
+
+bwa mem -t 40 $ASSEMBLY $READ1 $READ2 > input.sam
 
 
-printf "\n\n\n#####################################################################\n\n\n"
-printf "\n\n\n#####################################################################\n\n\n"
-printf "\n\n\n################# Alighing RNA reads with HiSat2 ####################\n\n\n"
-printf "\n\n\n#####################################################################\n\n\n"
-printf "\n\n\n#####################################################################\n\n\n"
-
-hisat2 --threads 40 -x ${ASSEMBLY}_hisat -1 $READ1 -2 $READ2 -k 3 -p 40 --pen-noncansplice 1000000 -S input.sam
-
-printf "\n\n\n#####################################################################\n\n\n"
-printf "\n\n\n#####################################################################\n\n\n"
-printf "\n\n\n#################### Scaffolding with P_RNA #######################\n\n\n"
-printf "\n\n\n#####################################################################\n\n\n"
-printf "\n\n\n#####################################################################\n\n\n"
+printf "\n\n\n#####################################################################\n"
+printf "\n\n\n#####################################################################\n"
+printf "\n\n\n#################### Scaffolding with P_RNA #########################\n"
+printf "\n\n\n#####################################################################\n"
+printf "\n\n\n#####################################################################\n"
 
 P_RNA_scaffolder.sh -d $HOME/software/P_RNA_scaffolder -i input.sam -j $ASSEMBLY -F $READ1 -R $READ2  -t 40
 
@@ -245,8 +245,7 @@ S_parvus.4.0.polished1 | 3,982,189,551 | 611,229 | 22,402 | 0.0 | C:74.4%[S:73.2
 S_parvus.4.0.polished1.RNAscaffolded (HiSat2) | 3,982,265,665 | 611,229 | 22,402 | 657,682 | 21,709 | C:82.5%[S:81.5%,D:1.0%],F:6.6%,M:10.9%,n:5310 
 S_parvus.4.0.polished1.RNAscaffolded (BWA) | 3,982,222,951 | 611,229 | 22,402 | 627,725 | 22,068 | C:84.6%[S:83.6%,D:1.0%],F:5.8%,M:9.6%,n:5310
 S_parvus.4.0.polished1.purged | 3,931,525,283 | 620,561 | 18,095 | NA | NA | C:74.5%[S:73.7%,D:0.8%],F:6.4%,M:19.1%,n:5310
-S_parvus.4.0.polished1.purged.RNAscaffolded (HiSat2) | 3,931,525,283 | 620,561 | 18,095 | 667,429 | 17,410 | C:82.4%[S:81.5%,D:0.9%],F:6.6%,M:11.0%,n:5310
-S_parvus.4.0.polished1.purged.RNAscaffolded (BWA) | 3,931,525,283 | 620,561 | 18,095 | 638,549 | 17,758 | C:81.7%[S:80.8%,D:0.9%],F:7.0%,M:11.3%,n:5310
+S_parvus.4.0.polished1.purged.RNAscaffolded | 3,931,525,283 | 620,561 | 18,095 | 638,549 | 17,758 | C:81.7%[S:80.8%,D:0.9%],F:7.0%,M:11.3%,n:5310
 
 
 I will be using this assembly moving forward: `S_parvus.4.0.polished1.RNAscaffoldedBWA.fa`
