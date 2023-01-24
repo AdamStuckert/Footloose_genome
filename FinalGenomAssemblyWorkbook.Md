@@ -129,61 +129,6 @@ S_parvus.4.0.polished1 | 3,982,189,551 | 611,229 | 22,402 | 0.0 | C:74.4%[S:73.2
 S_parvus.4.0.polished2 | 3,918,212,060 | 609,425 | 20,281 | 0.0 | C:73.3%[S:72.0%,D:1.3%],F:11.5%,M:15.2%,n:3950
 S_parvus.4.0.preadspolished1 | 3,963,679,315 | 605,739 | 23,418 |  C:72.9%[S:71.6%,D:1.3%],F:11.5%,M:15.6%,n:3950
 
-I then used the program `purge_dups` to...purge dups.
-
-```
-#!/bin/bash
-#SBATCH --partition=macmanes,shared
-#SBATCH -J purge_dups
-#SBATCH --output purge_dups_slurm.log
-#SBATCH --cpus-per-task=40
-#SBATCH --exclude=node117,node118
-#SBATCH --mem=300G
-set -x
-
-ASSEMBLY="$HOME/footloose_genome/genome_versions/S_parvus_wtdbg.ctg.polished1.fa"
-READS=$"$HOME/footloose_genome/raw_data/S_parvus_all_smrtcells.fasta"
-PAF="FootloosePB.paf.gz"
-
-DIR=$(pwd)
-genome=$(basename $ASSEMBLY)
-PURGED=$(echo $genome | sed "s/.fa//" | sed "s/.fasta//")
-
-
-module load linuxbrew/colsa
-
-
-ln -s $ASSEMBLY
-
-### run pipeline step by step
-echo aligning with minimap2
-minimap2 -I50G -t 40 -xmap-pb $genome $READS | gzip -c - > $PAF
-
-echo initial calculations
-pbcstat $PAF
-calcuts PB.stat > cutoffs 2>calcults.log
-
-echo Splitting assembly
-split_fa $genome > $assembly.split
-minimap2 -I50G -t 40 -xasm5 -DP $assembly.split $assembly.split | gzip -c - > $assembly.split.self.paf.gz
-
-echo Purging haplotigs with overlaps
-purge_dups -2 -T cutoffs -c PB.base.cov $assembly.split.self.paf.gz > dups.bed 2> purge_dups.log
-
-echo Getting purged sequences...
-get_seqs dups.bed $genome
-
-# rename assembly
-mv purged.fa $PURGED.purged.fa
-```
-
-
-Assembly | Genome Size (GB) | Contig N50 | Number of Contigs | %Ns | BUSCO 
---- | --- | --- | --- | --- | --
-S_parvus.4.0 | 3,985,797,087 | 608,715 | 23,418 | 0.0 | C:68.3%[S:67.2%,D:1.1%],F:12.6%,M:19.1%,n:3950
-S_parvus.4.0.polished1 | 3,982,189,551 | 611,229 | 22,402 | 0.0 | C:74.4%[S:73.2%,D:1.2%],F:11.3%,M:14.3%,n:3950
-S_parvus.4.0.polished1.purged | 3,931,525,283 | 620,561 | 18,095 |  C:74.4%[S:73.2%,D:1.2%],F:11.3%,M:14.3%,n:3950
-
 
 ### Scaffolding with RNA data
 
