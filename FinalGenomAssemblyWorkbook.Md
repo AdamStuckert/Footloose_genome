@@ -247,10 +247,9 @@ RUNOUT=S_parvus_ORP
 
 Transrate score: 0.41503
 Transrate optimal score: 0.45624
-BUSCO (metazoa??): C:93.1%[S:84.2%,D:8.9%],F:5.3%,M:1.6%,n:303
-**NOTE:** run BUSCO with tetrapoda lineage.
+BUSCO: C:93.1%[S:84.2%,D:8.9%],F:5.3%,M:1.6%,n:303
 
-OVerall, a good assembly. 
+Overall, a good assembly. 
 
 I want to look at only those assembled transcripts that have evidence suporting them. To do this, I used the `TransDecoder` pipeline with homoly evidence from `blastp` (with the uniprot database) and Pfam.
 
