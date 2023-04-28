@@ -1,0 +1,106 @@
+#!/bin/bash
+#SBATCH --job-name=compgen
+#SBATCH --output=compgen.log
+#SBATCH --cpus-per-task=48
+#SBATCH --time=3-0
+#SBATCH --mem=160g
+
+# prep
+module purge
+# load conda source script!
+. /project/stuckert/software/anaconda3/etc/profile.d/conda.sh
+function unwrap_fasta {
+        in=$1
+        out=$2
+        awk '{if(NR==1) {print $0} else {if($0 ~ /^>/) {print "\n"$0} else {printf $0}}}' $in > $out
+        }
+
+# Now to do a big, systematic search.
+mkdir comparativegenomics
+mkdir comparativegenomics/taxaspecificfastas
+
+printf "########################################\n###### Extracting gene sequences ######\n########################################\n"
+# for loop for the genes we want to search:
+for gene in $(cat Genes2Search.txt)
+do
+
+# inner for loop to pull in taxonomy ids
+for taxa in $(cat taxaIDs.tsv) # note the way this markdown is written it isn't technically correct because I've just extracted the TaxaID column from the R script
+do
+
+# search
+conda activate ncbi
+printf "Searching for %s in %s\n" "$gene" "$taxa"
+esearch -db nucleotide -query "txid$taxa AND $gene[gene]" | efetch -format fasta > comparativegenomics/taxaspecificfastas/${gene}_${taxa}.fa
+## txid for anurans is 8342 
+done
+done
+
+# Extract one sequence per gene x taxa combo:
+printf "########################################\n###### Extracting one sequence per gene ######\n########################################\n"
+
+for fasta in $(ls taxaspecificfastas/*fa)
+do
+# unwrap fastas
+unwrap_fasta $fasta tmp.fa
+# extract only mRNA seq
+grep -A1 "mRNA" tmp.fa > $fasta.1
+done
+
+# Merge all the fasta files:
+
+printf "########################################\n###### Merging fasta files ######\n########################################\n"
+
+# mkdir collatedgenefastas
+# for gene in $(cat Genes2Search.txt)
+# do
+# cat ${gene}_Sparv.fa > collatedgenefastas/${gene}.fa
+# for file in $(ls downloads/*${gene}.fa)
+# do
+# cat $file
+# printf "\n"
+
+# done >> collatedgenefastas/${gene}.fa
+# done
+
+mkdir collatedgenefastas
+for gene in $(cat Genes2Search.txt)
+do
+#cat ${gene}_Sparv.fa > collatedgenefastas/${gene}.fa
+#cat ../ar.cds.fa1 > collatedgenefastas/ar.mRNA.fa
+cat ../S_parvus_ar_cds.fa > collatedgenefastas/ar.mRNA.fa
+cat downloads/R_catesbiana_AR_cds.fa  >> collatedgenefastas/ar.mRNA.fa
+cat taxaspecificfastas/${gene}*.fa.1 >> collatedgenefastas/ar.mRNA.fa
+unwrap_fasta collatedgenefastas/ar.mRNA.fa tmp
+mv tmp collatedgenefastas/ar.mRNA.fa
+
+done
+# Clean header names:
+sed -i "s/PREDICTED: //g" collatedgenefastas/ar.mRNA.fa
+
+
+conda activate trees
+mkdir alignments
+
+#cat ../ar.cds.fa1 > collatedgenefastas/ar.mRNA.fa
+cat ../S_parvus_ar_cds.fa > collatedgenefastas/ar.mRNA.fa
+cat downloads/R_catesbiana_AR_cds.fa  >> collatedgenefastas/ar.mRNA.fa
+cat taxaspecificfastas/${gene}*.fa.1 >> collatedgenefastas/ar.mRNA.fa
+unwrap_fasta collatedgenefastas/ar.mRNA.fa tmp
+mv tmp collatedgenefastas/ar.mRNA.fa
+
+
+## align with mafft:
+printf "########################################\n###### Aligning sequences with mafft ######\n########################################\n"
+
+mafft --auto --leavegappyregion --thread 8 collatedgenefastas/ar.mRNA.fa > alignments/ar.mRNA.aln
+
+# build a tree with iqtree, specifying outgroup
+iqtree -s alignments/ar.mRNA.aln -nt 8 -bb 1000 -pre treefiles/ar.mRNA.test -o "XM_008120378.1" -redo
+
+
+# align proteins
+mafft --auto --leavegappyregion --thread 8 collatedgenefastas/ar_protein.fa > alignments/ar.prot.aln
+# iqtree
+iqtree -s alignments/ar.prot.aln -nt 8 -bb 1000 -pre treefiles/ar.prot.test -o "XP_008118585.1" -redo
+
