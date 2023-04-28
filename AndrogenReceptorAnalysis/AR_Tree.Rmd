@@ -1,0 +1,54 @@
+---
+title: "AR Tree"
+output: html_document
+date: "2023-02-28"
+---
+
+```{r setup, include=FALSE}
+library(ggtree)
+library(tidyverse)
+library(ape)
+library(treeio)
+library(ggmsa)
+```
+
+## Androgen receptor
+
+This R Markdown file contains an initial tree of androgen receptor mRNA sequences among frogs. Input data were created by aligning with MAFFT (leaing gappy regions) and building the Newick Tree with IQ-TREE2.
+
+
+
+
+
+```{r tree mRNA}
+
+AR_tree <- "(((((S_parvus_Androgen_receptor_cds:0.4057678467,(AY324231.1:0.0730250573,XM_040322905.1:0.0238057742)100:0.0803640298)98:0.0456388808,XM_018554751.1:0.0545491860)100:0.3265723716,(XM_044306429.1:0.0053020753,XM_040406185.1:0.0089251378)100:0.1617924614)95:0.1409016325,(XM_053474185.1:0.2323302826,((BC170349.1:0.0000021804,BC170347.1:0.0000021804)100:0.0460741562,XM_002941842.5:0.0922337038)100:0.5254199631)55:0.1340612434)100:0.5288239588,((XM_030208702.1:0.0871663849,XM_033945498.1:0.1464432365)100:0.2740724069,XM_029607286.1:0.3810585674)100:0.2887504347,XM_008120378.1:0.4283337704);"
+
+AR_tree <- read.tree(text=AR_tree)
+
+# add species info for tips
+tree_meta <- read.csv("data/tree_meta_mRNA_revised.csv")
+
+tmp <- rename_taxa(AR_tree, tree_meta, label, species) %>% write.tree
+AR_tree <- read.tree(text=tmp)
+
+class(AR_tree)
+# reroot
+#AR_tree_root <- ape::root.phylo(AR_tree, outgroup = "Anolis_carolinensis")
+is.rooted(AR_tree)
+
+# add space to tip labels.
+AR_tree$tip.label <- gsub(pattern = "_", replacement = " ", AR_tree$tip.label)
+
+ggtree(AR_tree)  + geom_tiplab(fontface = "italic") + geom_nodelab(hjust=1.2, vjust = -0.8) + xlim(0, 1.75)
+
+ggsave("figures/AR_tree.png", dpi = 600, width = 8, height = 7)
+```
+
+
+
+
+
+
+
+
