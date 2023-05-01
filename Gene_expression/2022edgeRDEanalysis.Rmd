@@ -1,0 +1,313 @@
+---
+title: "edgeR practice"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+#PLEASE READ: Instructions/things you should know
+
+#All of this code for some reason works better when you paste it into the console/do command-return for each line... :( I would not recommend running the script within the file
+#Throughout, I will put comments to the right of lines of code to explain what each one does
+#the edgeR vignette and Google are your best friends for troubleshooting if you get an error!
+#The next step after you have your DE results is to put your tissue-specific lists into PANTHER for gene ontology analysis - see the instruction googledoc for that
+
+#BEFORE YOU BEGIN:
+#make a copy of this file into your folder so you can edit it however you'd like/keep this file for reference for future users. Here, I used three groups (brain, spinal cord, leg muscle) and you may need to duplicate or remove steps if your design is different, and to also look up examples in the edgeR vignette that use the same number of groups as you
+#set up a directory that includes: all of your gene count data and the gene annotation files (Staurois_parvus.annotations.tsv for full gene names or symbols.csv for just gene symbols)
+```
+
+```{r}
+#load edgeR and other packages needed for figures
+  library(edgeR)
+  library(dplyr)
+  library(gplots)
+  library(tidyverse)
+```
+
+```{r setup, include=FALSE}
+#set working directory, annotation files, and variable for count file matrix
+
+  setwd("/projectnb2/ct-borneanfrog/mholtz/Genome_ref_counts") #set this to where your gene count files are
+ 
+  #annotation
+  annosfull <- read.table("Staurois_parvus.annotations.tsv", sep = ",") 
+  annos <- read.csv("symbols/symbols.csv", sep = ",") #fyi I mostly use these annotations in my code instead of annosfull
+  annos$X.1 <- NULL #remove first column
+  
+  #compile all gene count files into one variable
+  files <- dir(pattern="*\\.counts$") #this is set for files that all end in .counts, but change the code if that is not the case
+  
+  #create DGE matrix
+  RG <- readDGE(files, path=NULL, columns=c(1,2), group=NULL, labels=NULL)
+  list <- DGEList(counts=RG)
+
+```
+
+```{r setup, include=FALSE}
+#make data frame with tissue groups, then design matrix
+
+  tissue <- factor(c("BR","BR","LM","LM","LM","LM","LM","Sp","Sp","Sp","Sp")) #assign tissue types in order of the files in directory
+  group <- factor(c("nervous","nervous","muscle","muscle","muscle","muscle","muscle","nervous","nervous","nervous","nervous")) #assign tissue groups in order of the files in directory
+  
+  #design matrix based on tissue type
+  design_tis <- model.matrix(~tissue) 
+  rownames(design_tis) <- colnames(list)
+  
+  #design matrix based on tissue group
+  design_grp <- model.matrix(~group) 
+  rownames(design_grp) <- colnames(list)
+```
+
+```{r setup, include=FALSE}
+#clean DGE matrix
+
+  #filter out low expression genes
+  keep <- filterByExpr(list, group = tissue)
+  list <- list[keep, , keep.lib.sizes=FALSE]
+
+  #normalize counts
+  list <- calcNormFactors(list)
+  list$samples
+
+  #estimate dispersions for each design you have
+  listtis <- estimateDisp(list, design_tis)
+  listgrp <- estimateDisp(list, design_grp)
+```
+
+```{r setup, include=FALSE}
+#extra figures you can make that describe the dispersion of your data
+
+  #MDS plot - groups samples based on how similar their expression patterns are
+  pch <- c(15,16,17)
+  colors <- rep(c("darkgreen", "red", "blue"))
+  plotMDS(listtis, main=NULL, col=colors[tissue], pch=pch[tissue], cex = 1.3)
+  legend("topleft", legend=levels(tissue), pch=pch, col=colors, ncol=2)
+
+  #histogram of average log CPM
+  AveLogCPM <- aveLogCPM(listtis)
+  hist(AveLogCPM)
+```
+
+```{r}
+#create a heatmap that show genes that vary the most across all samples - may not be useful if you're more interested in differences between groups
+
+  #convert gene counts into log-fold expression level values
+  logcounts <- cpm(listtis, prior.count = 2, log=TRUE)
+  logcounts <- t(scale(t(logcounts))) #scale log values to produce a heatmap with clearer color contrast
+
+  #create list of genes that vary most between individual samples
+  var_genes <- apply(logcounts, 1, var)
+  select_var <- names(sort(var_genes, decreasing=TRUE))[1:50] #change the second number based on how many genes you want displayed on the heatmap
+  head(select_var)
+  
+  #pull the log values for the top variable genes
+  highly_variable_lcpm <- logcounts[select_var, ]
+  dim(highly_variable_lcpm)
+
+  #remove excess letters from sample names and swap the numeric gene labels for their gene symbols 
+  colnames(highly_variable_lcpm) <- sub("_.*", "", colnames(highly_variable_lcpm)) #changes names such as BR2_CKDL2 to BR2
+  rownames(highly_variable_lcpm) <- sub(",.*", "", rownames(highly_variable_lcpm)) #keeps only first label for rows that list multiple genes (such as 004928-RB,004928-RA)
+  names <- as.data.frame(rownames(highly_variable_lcpm)) #this and the next three lines swap in the gene symbols in annos
+  colnames(names) <- "X"
+  names <- dplyr::left_join(names, annos, by = "X")
+  row.names(highly_variable_lcpm) <- c(names$gene)
+  
+  col.pan <- colorpanel(100, "blue", "lime green", "yellow") #change colors as you like! I would looke up HTML color names for more specific choices
+  heatmap.2(highly_variable_lcpm, col=col.pan, Rowv=TRUE, Colv=TRUE, scale="none",trace="none", dendrogram="both", cexCol=1.4, main = NULL) #for more customization options, I would look up the function heatmap.2
+
+```
+
+```{r setup, include=FALSE} 
+#Differential gene expression tests
+
+  #pairwise comparisons
+ 
+  fittis <- glmQLFit(listtis, design_tis)
+ 
+    #Br vs LM - I repeat the same exact steps for each comparison
+  
+      qlf_BvL <- glmQLFTest(fittis, coef=2) #I set up the coef differently depending on what groups I want to compare
+      results_BvL <- topTags(qlf_BvL, n = Inf)
+      summary(decideTests(qlf_BvL)) #gives you number of DEGs and non-significant genes
+      write.csv(results_BvL, file="BRvsLM.csv") #save csv file of DE results
+      plotMD(qlf_BvL, hl.col=c("#ADFF2F","blue"), main=NULL, legend=NULL) #shows dispersion of DEGs
+      
+      #formatting results file to include just DE genes and create separate files by tissue type. I would look at the BRvsLM variable after each step to see what they do.
+      BRvsLM <- read.csv("BRvsLM.csv")
+      BRvsLM$X <- gsub(pattern = ",.*", replacement = "", BRvsLM$X)
+      BRvsLM <- left_join(BRvsLM, annos, by = "X")
+      BRvsLM <- left_join(BRvsLM, annosfull, by = "X")
+      BRvsLM <- left_join(BRvsLM, BRvsLM_ref, by ="X")
+      BRvsLM = BRvsLM[BRvsLM$FDR < 0.05,]
+      BRvsLM_BR = BRvsLM[BRvsLM$logFC > 0,]
+      BRvsLM_LM = BRvsLM[BRvsLM$logFC < 0,]
+      o1 <- order(abs(BRvsLM_BR$logFC), decreasing = TRUE)
+      BRvsLM_BR <- BRvsLM_BR[o1, ]
+      o2 <- order(abs(BRvsLM_LM$logFC), decreasing = TRUE)
+      BRvsLM_LM <- BRvsLM_LM[o2, ]
+      write.csv(BRvsLM_BR, file="BRvsLM_BR.csv")
+      write.csv(BRvsLM_LM, file="BRvsLM_LM.csv")
+      
+      #heatmap - I repeat the same steps as the heatmap above, but this time pulling the top DEGs from this comparison
+      o_BvL <- order(qlf_BvL$table$PValue)
+      BvL_log <- cpm(listtis, prior.count = 2, log=TRUE)[o_BvL[1:30],] #change second number to increase number of genes
+      BvL_log <- t(scale(t(BvL_log)))
+      colnames(BvL_log) <- sub("_.*", "", colnames(BvL_log))
+      rownames(BvL_log) <- sub(",.*", "", rownames(BvL_log))
+      BvL_names <- as.data.frame(rownames(BvL_log))
+      colnames(BvL_names) <- "X"
+      BvL_names <- dplyr::left_join(BvL_names, annos, by = "X")
+      row.names(BvL_log) <- c(BvL_names$gene)
+      col.pan <- colorpanel(100, "blue", "lime green", "yellow")
+      heatmap.2(BvL_log, col=col.pan, Rowv=TRUE, Colv=TRUE, scale="none",trace="none", dendrogram="both", cexCol=1.4, main = NULL)
+      
+      #sometimes there's an error and RStudio won't produce a heatmap after you made another one - use this code and try again
+      dev.off()
+      
+    #Br vs Sp
+      
+      qlf_BvS <- glmQLFTest(fittis, coef=3)
+      results_BvS <- topTags(qlf_BvS, n = Inf)
+      summary(decideTests(qlf_BvS))
+      write.csv(results_BvS, file="BRvsSp.csv")
+      plotMD(qlf_BvS, hl.col=c("#ADFF2F","blue"), main=NULL, legend=NULL)
+      
+      #formatting results file to include just DE genes and separate by tissue type
+      BRvsSp <- read.csv("BRvsSp.csv")
+      BRvsSp$X <- gsub(pattern = ",.*", replacement = "", BRvsSp$X)
+      BRvsSp <- left_join(BRvsSp, annos, by = "X")
+      BRvsSp <- left_join(BRvsSp, annosfull, by = "X")
+      BRvsSp <- left_join(BRvsSp, BRvsSp_ref, by ="X")
+      BRvsSp = BRvsSp[BRvsSp$FDR < 0.05,]
+      BRvsSp_BR = BRvsSp[BRvsSp$logFC > 0,]
+      BRvsSp_Sp = BRvsSp[BRvsSp$logFC < 0,]
+      o1 <- order(abs(BRvsSp_BR$logFC), decreasing = TRUE)
+      BRvsSp_BR <- BRvsSp_BR[o1, ]
+      o2 <- order(abs(BRvsSp_Sp$logFC), decreasing = TRUE)
+      BRvsSp_Sp <- BRvsSp_Sp[o2, ]
+      write.csv(BRvsSp_BR, file="BRvsSp_BR.csv")
+      write.csv(BRvsSp_Sp, file="BRvsSp_Sp.csv")
+      
+      #heatmap
+      o_BvS <- order(qlf_BvS$table$PValue)
+      BvS_log <- cpm(listtis, prior.count = 2, log=TRUE)[o_BvS[1:30],]
+      BvS_log <- t(scale(t(BvS_log)))
+      colnames(BvS_log) <- sub("_.*", "", colnames(BvS_log))
+      rownames(BvS_log) <- sub(",.*", "", rownames(BvS_log))
+      BvS_names <- as.data.frame(rownames(BvS_log))
+      colnames(BvS_names) <- "X"
+      BvS_names <- dplyr::left_join(BvS_names, annos, by = "X")
+      row.names(BvS_log) <- c(BvS_names$gene)
+      col.pan <- colorpanel(100, "blue", "lime green", "yellow")
+      heatmap.2(BvS_log, col=col.pan, Rowv=TRUE, Colv=TRUE, scale="none",trace="none", dendrogram="both", cexCol=1.4, main =NULL)
+      
+      #alternative for aesthetic changes
+      heatmap.2(BvS_log, col=col.pan, Rowv=TRUE, Colv=TRUE, scale="none",trace="none", dendrogram="column", cexCol=1.4, main =NULL, lwid=c(1,4), lhei=c(0.5,4))
+      
+      dev.off()
+
+    #LM vs Sp
+      
+      qlf_LvS <- glmQLFTest(fittis, contrast=c(0,1,-1))
+      results_LvS <- topTags(qlf_LvS, n = Inf)
+      summary(decideTests(qlf_LvS))
+      write.csv(results_LvS, file="LMvsSp.csv")
+      plotMD(qlf_LvS, hl.col=c("#ADFF2F","blue"), main=NULL, legend=NULL)
+      
+      #formatting results file to include just DE genes and separate by tissue type
+      LMvsSp <- read.csv("LMvsSp.csv")
+      LMvsSp$X <- gsub(pattern = ",.*", replacement = "", LMvsSp$X)
+      LMvsSp <- left_join(LMvsSp, annos, by = "X")
+      LMvsSp <- left_join(LMvsSp, annosfull, by = "X")
+      LMvsSp <- left_join(LMvsSp, BRvsLM_ref, by ="X")
+      LMvsSp = LMvsSp[LMvsSp$FDR < 0.05,]
+      LMvsSp_LM = LMvsSp[LMvsSp$logFC > 0,]
+      LMvsSp_Sp = LMvsSp[LMvsSp$logFC < 0,]
+      o1 <- order(abs(LMvsSp_LM$logFC), decreasing = TRUE)
+      LMvsSp_LM <- LMvsSp_LM[o1, ]
+      o2 <- order(abs(LMvsSp_Sp$logFC), decreasing = TRUE)
+      LMvsSp_Sp <- LMvsSp_Sp[o2, ]
+      write.csv(LMvsSp_LM, file="LMvsSp_LM.csv")
+      write.csv(LMvsSp_Sp, file="LMvsSp_Sp.csv")
+      
+      #heatmap
+      o_LvS <- order(qlf_LvS$table$PValue)
+      LvS_log <- cpm(listtis, prior.count = 2, log=TRUE)[o_LvS[1:30],]
+      LvS_log <- t(scale(t(LvS_log)))
+      colnames(LvS_log) <- sub("_.*", "", colnames(LvS_log))
+      rownames(LvS_log) <- sub(",.*", "", rownames(LvS_log))
+      LvS_names <- as.data.frame(rownames(LvS_log))
+      colnames(LvS_names) <- "X"
+      LvS_names <- dplyr::left_join(LvS_names, annos, by = "X")
+      row.names(LvS_log) <- c(LvS_names$gene)
+      col.pan <- colorpanel(100, "blue", "lime green", "yellow")
+      par(mar=c(7,7,7,7)+0.1)
+      heatmap.2(LvS_log, col=col.pan, Rowv=TRUE, Colv=TRUE, scale="none",trace="none", dendrogram="both", cexCol=1.4, main = NULL)
+    
+  #pairwise comparison for tissue groups - NS vs LM
+
+    fitgrp <- glmQLFit(listgrp, design_grp)
+    
+    qlf_grp <- glmQLFTest(fitgrp) #no need to describe contrast if you only have two groups
+    results_grp <- topTags(qlf_grp, n = Inf)
+    topTags(qlf_grp)
+    summary(decideTests(qlf_grp))
+    write.csv(results_grp, file="NSvsLM.csv")
+    plotMD(qlf_grp, hl.col=c("#ADFF2F","blue"), main=NULL, legend=NULL)
+    
+    #formatting results file to include just DE genes and separate by tissue type
+    NSvsLM <- read.csv("NSvsLM.csv")
+    NSvsLM$X <- gsub(pattern = ",.*", replacement = "", NSvsLM$X)
+    NSvsLM <- left_join(NSvsLM, annos, by = "X")
+    NSvsLM <- left_join(NSvsLM, annosfull, by = "X")
+    NSvsLM <- left_join(NSvsLM, BRvsLM_ref, by ="X")
+    NSvsLM = NSvsLM[NSvsLM$FDR < 0.05,]
+    NSvsLM_NS = NSvsLM[NSvsLM$logFC > 0,]
+    NSvsLM_LM = NSvsLM[NSvsLM$logFC < 0,]
+    o1 <- order(abs(NSvsLM_NS$logFC), decreasing = TRUE)
+    NSvsLM_NS <- NSvsLM_NS[o1, ]
+    o2 <- order(abs(NSvsLM_LM$logFC), decreasing = TRUE)
+    NSvsLM_LM <- NSvsLM_LM[o2, ]
+    write.csv(NSvsLM_NS, file="NSvsLM_NS.csv")
+    write.csv(NSvsLM_LM, file="NSvsLM_LM.csv")
+   
+    #heatmap
+    o_grp <- order(qlf_grp$table$PValue)
+    grp_log <- cpm(listgrp, prior.count = 2, log=TRUE)[o_grp[1:30],]
+    grp_log <- t(scale(t(grp_log)))
+    colnames(grp_log) <- sub("_.*", "", colnames(grp_log))
+    rownames(grp_log) <- sub(",.*", "", rownames(grp_log))
+    grp_names <- as.data.frame(rownames(grp_log))
+    colnames(grp_names) <- "X"
+    grp_names <- dplyr::left_join(grp_names, annos, by = "X")
+    row.names(grp_log) <- c(grp_names$gene)
+    col.pan <- colorpanel(100, "blue", "lime green", "yellow")
+    heatmap.2(grp_log, col=col.pan, Rowv=TRUE, Colv=TRUE, scale="none",trace="none", dendrogram="both", cexCol=1.4, main = NULL)
+    
+```
+
+```{r}
+#DE genes that vary between any of the three groups - three way comparison
+  
+  qlf <- glmQLFTest(fittis, coef=2:3) #this coef probably changes if you have more than 3 groups
+  results <- topTags(qlf, n = Inf)
+  topTags(qlf)
+  summary(decideTests(qlf))
+  write.csv(results, file="3way.csv")
+
+  #heatmap
+  o <- order(qlf$table$PValue)
+  log <- cpm(listtis, prior.count = 2, log=TRUE)[o[1:30],]
+  log <- t(scale(t(log)))
+  colnames(log) <- sub("_.*", "", colnames(log))
+  rownames(log) <- sub(",.*", "", rownames(log))
+  names <- as.data.frame(rownames(log))
+  colnames(names) <- "X"
+  names <- dplyr::left_join(names, annos, by = "X")
+  row.names(log) <- c(names$gene)
+  col.pan <- colorpanel(100, "blue", "lime green", "yellow")
+  heatmap.2(log, col=col.pan, Rowv=TRUE, Colv=TRUE, scale="none",trace="none", dendrogram="both", cexCol=1.4, main = NULL)
+  
+  #aesthetic alternative
+  heatmap.2(log, col=col.pan, Rowv=TRUE, Colv=TRUE, scale="none",trace="none", dendrogram="column", cexCol=1.4, main = NULL,lwid=c(0.5,4), lhei=c(0.5,4))
+```
